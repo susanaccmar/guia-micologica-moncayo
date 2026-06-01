@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Autoevaluación Micología - Unidad 1</title>
+<style>
+:root{--bg:#f3f0e8;--card:#fffaf0;--primary:#6f4e37;--primary-dark:#4b3621;--accent:#b8860b;--ok:#1f7a3a;--bad:#b3261e;--text:#2f2a24;--muted:#6b6258;--border:#dfd2bc}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#fff8dc 0,var(--bg) 45%,#e7ddca 100%);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:28px 14px}.app{width:100%;max-width:900px}header{text-align:center;margin-bottom:22px}header h1{margin:0 0 8px;color:var(--primary-dark);font-size:clamp(1.8rem,4vw,2.6rem)}header p{margin:0;color:var(--muted);font-size:1rem}.card{background:rgba(255,250,240,.96);border:1px solid var(--border);border-radius:22px;padding:clamp(18px,4vw,34px);box-shadow:0 18px 50px rgba(61,43,31,.16)}.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px}.badge{background:#efe2c6;color:var(--primary-dark);padding:8px 12px;border-radius:999px;font-weight:700;font-size:.92rem}.score{display:flex;gap:8px;flex-wrap:wrap}.score span{padding:8px 12px;border-radius:999px;font-weight:700;background:#f5ead2;border:1px solid var(--border)}.question{font-size:clamp(1.1rem,2.5vw,1.35rem);line-height:1.45;font-weight:750;margin:0 0 18px;color:var(--primary-dark)}.answers{display:grid;gap:12px;margin-bottom:18px}button.answer{border:2px solid var(--border);background:#fffdf7;color:var(--text);padding:14px 16px;border-radius:16px;text-align:left;cursor:pointer;font-size:1rem;line-height:1.35;transition:transform .12s ease,border-color .12s ease,background .12s ease}button.answer:hover:not(:disabled){transform:translateY(-1px);border-color:var(--accent);background:#fff8e6}button.answer:disabled{cursor:default;opacity:.95}button.answer.correct{border-color:var(--ok);background:#eaf7ee}button.answer.wrong{border-color:var(--bad);background:#fdecea}.feedback{display:none;margin-top:18px;padding:18px;border-radius:18px;border:1px solid var(--border);background:#fff7e3}.feedback.show{display:block}.feedback h2{margin:0 0 12px;font-size:1.15rem}.feedback h2.ok{color:var(--ok)}.feedback h2.bad{color:var(--bad)}.feedback p{margin:0 0 9px;line-height:1.5}.feedback p:last-child{margin-bottom:0}.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;flex-wrap:wrap}.primary-btn,.secondary-btn{border:none;border-radius:999px;padding:12px 18px;font-weight:750;cursor:pointer;font-size:1rem}.primary-btn{background:var(--primary);color:white}.primary-btn:hover{background:var(--primary-dark)}.secondary-btn{background:#eadcc3;color:var(--primary-dark)}.progress{height:10px;background:#eadcc3;border-radius:999px;overflow:hidden;margin-bottom:18px}.progress>div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--primary));transition:width .25s ease}.result{text-align:center}.result h2{font-size:2rem;margin:0 0 12px;color:var(--primary-dark)}.result p{font-size:1.1rem;color:var(--muted)}.hidden{display:none}.letter{font-weight:800;color:var(--primary-dark);margin-right:6px}footer{text-align:center;color:var(--muted);margin-top:16px;font-size:.92rem}
+</style>
+</head>
+<body>
+<main class="app">
+<header><h1>Autoevaluación de Micología</h1><p>Unidad 1 · Introducción a los hongos</p></header>
+<section class="card" id="quiz-card"><div class="topbar"><span class="badge" id="counter"></span><div class="score"><span>✅ Aciertos: <strong id="hits">0</strong></span><span>❌ Fallos: <strong id="misses">0</strong></span></div></div><div class="progress"><div id="progress-bar"></div></div><p class="question" id="question"></p><div class="answers" id="answers"></div><div class="feedback" id="feedback"><h2 id="feedback-title"></h2><div id="feedback-text"></div></div><div class="actions"><button class="secondary-btn hidden" id="restart-btn">Volver a empezar</button><button class="primary-btn hidden" id="next-btn">Siguiente pregunta</button></div></section>
+<section class="card result hidden" id="result-card"><h2>Resultado final</h2><p id="final-score"></p><p id="final-message"></p><div class="actions" style="justify-content:center"><button class="secondary-btn" id="restart-final-btn">Volver a empezar</button><button class="primary-btn hidden" id="review-btn">Revisar fallos</button></div></section>
+<footer>Curso de Orientador Micológico · Cuestionario interactivo</footer>
+</main>
+<script>
+const preguntasOriginales = [
+  {
+    "pregunta": "En relación al reino Fungi:",
+    "respuestas": [
+      "Los hongos son organismos procariotas porque tienen el material genético disuelto en el citoplasma.",
+      "Los hongos son organismos eucariotas que presentan gran parte del material genético protegido dentro de un núcleo bien definido rodeado de membrana nuclear, aunque también presentan material genético en las mitocondrias y en las esporas.",
+      "Los hongos son organismos autótrofos porque son capaces de hacer la fotosíntesis como las algas y las plantas.",
+      "Los hongos son organismos eucariotas que presentan gran parte del material genético protegido dentro del núcleo y rodeado de una membrana nuclear."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "Los hongos son organismos eucariotas: su ADN principal está en un núcleo definido con membrana nuclear. Además, las mitocondrias poseen ADN propio, por eso la opción más completa es la b. No son procariotas ni fotosintéticos."
+    ]
+  },
+  {
+    "pregunta": "En relación al reino Fungi:",
+    "respuestas": [
+      "Los hongos son organismos autótrofos que presentan cloroplastos para hacer la fotosíntesis.",
+      "Los hongos son organismos heterótrofos que presentan cloroplastos para hacer la fotosíntesis.",
+      "Los hongos son organismos heterótrofos que no producen su propio alimento por fotosíntesis y se alimentan descomponiendo materia orgánica de otros organismos.",
+      "Los hongos pueden ser autótrofos en unas condiciones y heterótrofos en otras."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "Los hongos carecen de cloroplastos y clorofila, por lo que no realizan fotosíntesis. Su nutrición es heterótrofa por absorción: obtienen nutrientes a partir de materia orgánica."
+    ]
+  },
+  {
+    "pregunta": "En relación al reino Fungi:",
+    "respuestas": [
+      "Los hongos son muy próximos a las plantas porque son autótrofos, presentan pared celular de celulosa y cloroplastos.",
+      "Los hongos son muy próximos a los animales porque son heterótrofos, utilizan el glucógeno como reserva y no tienen cloroplastos.",
+      "Los hongos son muy próximos a las algas porque son autótrofos, presentan pared celular de celulosa y tienen cloroplastos.",
+      "Los hongos son muy próximos a los animales porque son autótrofos, presentan pared celular de celulosa y tienen cloroplastos."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "Aunque antiguamente se relacionaron con plantas, los hongos comparten rasgos con los animales: son heterótrofos, no tienen cloroplastos y almacenan glucógeno como sustancia de reserva."
+    ]
+  },
+  {
+    "pregunta": "En relación al reino Fungi:",
+    "respuestas": [
+      "La principal función de los hongos es la descomposición de la materia orgánica, para generar nutrientes asimilables por otros seres vivos de la cadena trófica del ecosistema.",
+      "La principal función de los hongos es regular las metapoblaciones de animales y de plantas.",
+      "La principal función de los hongos es hacer la fotosíntesis.",
+      "La principal función de los hongos es controlar las poblaciones de insectos."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "Los hongos son descomponedores esenciales. Reciclan materia orgánica y devuelven nutrientes al ecosistema, haciéndolos disponibles para otros organismos."
+    ]
+  },
+  {
+    "pregunta": "En relación a la estructura de los talos o del micelio:",
+    "respuestas": [
+      "El talo unicelular está formado por filamentos llamados hifas.",
+      "El plasmodio es una masa protoplasmática plurinucleada sin pared celular definida, que no mantiene su individualidad, característico de los mixomycetes.",
+      "El talo filamentoso o multicelular está formado por una única célula.",
+      "El talo filamentoso cenocítico está formado por hifas tabicadas, con septos."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "El plasmodio es propio de mixomycetes: una masa plurinucleada sin pared celular definida. El talo filamentoso está formado por hifas; si es cenocítico, no tiene septos."
+    ]
+  },
+  {
+    "pregunta": "En relación a las estructuras especializadas:",
+    "respuestas": [
+      "Los esclerocios son masas pseudoparenquimáticas con reservas para sobrevivir en condiciones desfavorables.",
+      "Los rizoides son cordones de hifas paralelas con aspecto de raíces para anclarse y absorber nutrientes.",
+      "Los estromas sirven de soporte a los cuerpos fructíferos de algunos ascomycetes.",
+      "Todas las respuestas anteriores son correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Las tres definiciones son correctas: esclerocios, rizoides y estromas son estructuras especializadas formadas por agrupaciones de hifas con funciones concretas."
+    ]
+  },
+  {
+    "pregunta": "En relación a las aplicaciones de los hongos:",
+    "respuestas": [
+      "Alexander Fleming descubrió la doble hélice de ADN.",
+      "Alexander Fleming descubrió la reacción en cadena de la polimerasa.",
+      "Alexander Fleming descubrió la penicilina, por lo que recibió el Premio Nobel de Medicina.",
+      "Alexander Fleming descubrió la vacuna de la viruela."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "Alexander Fleming descubrió la penicilina en 1928 al observar que un hongo del género Penicillium impedía el crecimiento bacteriano.",
+      "La penicilina revolucionó la medicina moderna y permitió tratar infecciones bacterianas que antes podían ser mortales.",
+      "Este descubrimiento es uno de los ejemplos históricos más importantes de aplicación medicinal de los hongos."
+    ]
+  },
+  {
+    "pregunta": "En relación a las aplicaciones de los hongos:",
+    "respuestas": [
+      "La etnomicología estudia el registro fósil de los hongos.",
+      "La paleomicología estudia las relaciones de los seres humanos con los hongos.",
+      "La paleomicología estudia el registro fósil de los hongos.",
+      "La micosociología estudia terapias medicinales con hongos."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "La paleomicología estudia el registro fósil de los hongos.",
+      "La etnomicología analiza la relación entre los seres humanos y los hongos, incluidos sus usos culturales, alimentarios, rituales o medicinales.",
+      "La micosociología estudia las comunidades de hongos y sus relaciones con el medio y con otras especies dentro de un ecosistema.",
+      "El uso terapéutico o medicinal de los hongos se relaciona más directamente con la micoterapia."
+    ]
+  },
+  {
+    "pregunta": "En relación a la historia de la micología:",
+    "respuestas": [
+      "El primer registro conocido es Ötzi, de unos 5200 años.",
+      "El primer registro conocido son las pinturas de Selva Pascuala, de aproximadamente 3000 a.C.",
+      "El primer registro conocido remonta hace 48000 años, según cálculos dentales de neandertales que indican consumo de Coprinopsis cinerea y Schizophyllum commune.",
+      "El primer registro conocido son pinturas rupestres del norte de África, entre 7000 y 5000 a.C."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "Las evidencias más antiguas conocidas del uso o consumo de hongos proceden de cálculos dentales de neandertales de hace aproximadamente 48.000 años.",
+      "En ellos se identificaron restos de especies como Coprinopsis cinerea y Schizophyllum commune.",
+      "Las pinturas rupestres y otras representaciones artísticas son posteriores, aunque también constituyen importantes evidencias históricas."
+    ]
+  },
+  {
+    "pregunta": "En relación a la historia de la micología:",
+    "respuestas": [
+      "Los petroglifos con figuras antropomórficas con setas en la cabeza descubiertos en Siberia se relacionan con uso de hongos alucinógenos durante la Edad Antigua.",
+      "Las Kuda Kallu representan uso de hongos para control de plagas.",
+      "Los mushroom stones mayas se usaban para ahuyentar enemigos y malos espíritus.",
+      "Las representaciones de Stonehenge muestran el uso de hongos después de la muerte."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "Los petroglifos hallados en Siberia muestran figuras antropomórficas con setas sobre la cabeza.",
+      "Estas representaciones se han relacionado con el uso ritual o chamánico de hongos psicoactivos.",
+      "Constituyen una de las evidencias arqueológicas más citadas sobre el posible uso ceremonial de hongos en la antigüedad."
+    ]
+  },
+  {
+    "pregunta": "En relación a la historia de la micología:",
+    "respuestas": [
+      "En el poblado neolítico de La Draga (Girona) se encontraron hongos como Ganoderma adspersum, probablemente usado como yesquero.",
+      "Ötzi portaba Fomitopsis pinicola y Ganoderma lucidum.",
+      "En Selva Pascuala se representan Cantharellus cibarius.",
+      "En la Edad Antigua ninguna cultura usaba trufas."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "En el yacimiento neolítico de La Draga, en Girona, se encontraron restos de Ganoderma adspersum.",
+      "Este hongo probablemente se utilizaba como yesca para encender fuego.",
+      "Su estructura permite conservar brasas durante bastante tiempo.",
+      "Los hongos yesqueros fueron muy importantes antes de la aparición de los métodos modernos de ignición."
+    ]
+  },
+  {
+    "pregunta": "En relación a la historia de la micología:",
+    "respuestas": [
+      "Elias Magnus Fries estableció la nomenclatura binomial.",
+      "Louis Pasteur desarrolló las bases de las vacunas del coronavirus y la influenza.",
+      "Carl von Linneo se considera el padre de la taxonomía moderna porque estableció el sistema de nomenclatura binomial.",
+      "Pietro Antonio Micheli inventó el microscopio."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "Carl von Linneo es considerado el padre de la taxonomía moderna porque desarrolló la nomenclatura binomial, que asigna a cada especie un nombre formado por género y especie.",
+      "Elias Magnus Fries fue uno de los micólogos más influyentes de la historia y sentó las bases de la clasificación moderna de los hongos.",
+      "Pietro Antonio Micheli demostró que los hongos se reproducen mediante esporas.",
+      "Louis Pasteur refutó la teoría de la generación espontánea gracias a sus estudios microbiológicos."
+    ]
+  },
+  {
+    "pregunta": "En relación a la historia de la clasificación de los seres vivos:",
+    "respuestas": [
+      "Aristóteles clasificó los seres vivos en cinco reinos.",
+      "Robert H. Whittaker clasificó los seres vivos en tres dominios.",
+      "Michael Ruggiero clasificó los seres vivos en dos reinos.",
+      "Robert H. Whittaker clasificó los seres vivos en cinco reinos: Animalia, Plantae, Protista, Fungi y Monera."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Whittaker propuso en 1969 el sistema de cinco reinos: Animalia, Plantae, Protista, Fungi y Monera. Los tres dominios corresponden a otros autores y enfoques posteriores."
+    ]
+  },
+  {
+    "pregunta": "En relación al sistema de clasificación taxonómica:",
+    "respuestas": [
+      "El sistema de nomenclatura de hongos es trinominal.",
+      "El sistema de nomenclatura de hongos es binominal porque usa dos palabras: la primera indica el género y la segunda el epíteto específico.",
+      "El Código Internacional de nomenclatura se acordó en Madrid en 1992.",
+      "La principal base de datos es la cabeza del profesor Javier."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "La nomenclatura científica habitual es binomial: género + epíteto específico. Por ejemplo, en Boletus edulis, Boletus es el género y edulis el epíteto específico."
+    ]
+  },
+  {
+    "pregunta": "En relación a las fuentes de los nombres científicos:",
+    "respuestas": [
+      "La mayoría de nombres científicos tienen raíces grecolatinas.",
+      "Algunos son eponímicos, dedicados a personas.",
+      "Algunos son toponímicos, dedicados al lugar donde se descubrió la especie.",
+      "Todas las respuestas anteriores son correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Los nombres científicos pueden proceder de raíces grecolatinas, homenajear a personas mediante epónimos o hacer referencia a lugares mediante topónimos.",
+      "Este sistema permite identificar una especie de forma universal, independientemente del idioma utilizado.",
+      "Por eso los nombres científicos son tan importantes en micología y en biología."
+    ]
+  },
+  {
+    "pregunta": "En relación a la clasificación y taxonomía de grandes grupos de hongos:",
+    "respuestas": [
+      "Los hongos en sentido amplio únicamente pertenecen al reino Fungi.",
+      "Los hongos en sentido amplio pertenecen al reino Protozoa, al reino Chromista y al reino Fungi.",
+      "Los hongos en sentido amplio pertenecen al reino Fungi y al reino Plantae.",
+      "Los hongos en sentido amplio pertenecen al reino Chromista y al reino Protozoa."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "En sentido amplio se incluyen grupos con aspecto o modo de vida fúngico que no pertenecen solo a Fungi: también se consideran organismos de Protozoa, como Myxomycota, y Chromista, como algunos falsos hongos."
+    ]
+  },
+  {
+    "pregunta": "En relación a la clasificación y taxonomía de grandes grupos de hongos:",
+    "respuestas": [
+      "El reino Fungi se divide únicamente en Ascomycota y Basidiomycota.",
+      "El reino Fungi se divide en seis phyla incluyendo Myxomycota y Oomycota.",
+      "El reino Fungi se divide al menos en cuatro phyla: Ascomycota, Basidiomycota, Chytridiomycota y Zygomycota.",
+      "El reino Fungi se divide en Chromista, Protozoa y Fungi."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "Dentro del reino Fungi existen al menos cuatro grandes phyla: Ascomycota, Basidiomycota, Chytridiomycota y Zygomycota.",
+      "Ascomycota y Basidiomycota incluyen la mayoría de hongos conocidos por los aficionados.",
+      "Myxomycota y Oomycota fueron considerados hongos durante mucho tiempo, pero no pertenecen al reino Fungi en sentido estricto."
+    ]
+  },
+  {
+    "pregunta": "En relación a la clasificación y taxonomía de grandes grupos de hongos:",
+    "respuestas": [
+      "Ascomycota presenta una fase fagotrófica de bacterias y microorganismos del suelo.",
+      "Ascomycota presenta zoosporas con dos flagelos.",
+      "Ascomycota presenta reproducción asexual por aplanosporas o pseudoconidios.",
+      "Ascomycota presenta organismos de gran interés en la industria alimentaria para fabricar pan, cerveza, vino y quesos."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Ascomycota incluye levaduras y mohos usados en fermentaciones y alimentos: pan, cerveza, vino y quesos. Las otras opciones describen rasgos que no corresponden a Ascomycota en este contexto."
+    ]
+  },
+  {
+    "pregunta": "En relación a la clasificación y taxonomía de grandes grupos de hongos:",
+    "respuestas": [
+      "Basidiomycota presenta organismos de gran interés ecológico en ecosistemas forestales y reforestación por sus numerosas especies micorrizógenas.",
+      "Basidiomycota es el grupo más complejo y numeroso de hongos.",
+      "Basidiomycota son organismos generalmente saprófitos de sustratos concentrados y húmedos y de estiércol.",
+      "Basidiomycota está formado fundamentalmente por mohos mucilaginosos."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "Basidiomycota incluye muchos hongos formadores de micorrizas con plantas leñosas.",
+      "Por eso tiene gran importancia ecológica y práctica en bosques y reforestaciones.",
+      "Muchas setas conocidas pertenecen a este grupo, incluidos boletos, amanitas, níscalos y russulas."
+    ]
+  },
+  {
+    "pregunta": "En relación a la clasificación y taxonomía de grandes grupos de hongos:",
+    "respuestas": [
+      "Los ascomycetes realizan el crecimiento del micelio dicariótico mediante la fibulación.",
+      "Los basidiomycetes realizan el crecimiento del micelio mediante la uncinulación.",
+      "La mayoría de basidiomycetes son tetraspóricos: presentan 4 basidiosporas en los basidios, aunque algunos son bispóricos.",
+      "Ninguna de las respuestas anteriores es correcta."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "La mayoría de basidiomycetes producen cuatro basidiosporas por basidio, por eso se denominan tetraspóricos. Existen excepciones, como especies bispóricas."
+    ]
+  }
+];
+let preguntas=[...preguntasOriginales],modoRevision=false,indice=0,aciertos=0,fallos=0,respondida=false,falladas=[];
+const $=id=>document.getElementById(id), questionEl=$('question'), answersEl=$('answers'), feedbackEl=$('feedback'), feedbackTitleEl=$('feedback-title'), feedbackTextEl=$('feedback-text'), nextBtn=$('next-btn'), restartBtn=$('restart-btn'), restartFinalBtn=$('restart-final-btn'), reviewBtn=$('review-btn'), counterEl=$('counter'), hitsEl=$('hits'), missesEl=$('misses'), progressBar=$('progress-bar'), quizCard=$('quiz-card'), resultCard=$('result-card'), finalScore=$('final-score'), finalMessage=$('final-message');
+function cargarPregunta(){respondida=false;const actual=preguntas[indice];counterEl.textContent=`${modoRevision?'Revisión':'Pregunta'} ${indice+1} de ${preguntas.length}`;questionEl.textContent=actual.pregunta;answersEl.innerHTML='';feedbackEl.classList.remove('show');nextBtn.classList.add('hidden');restartBtn.classList.remove('hidden');progressBar.style.width=`${(indice/preguntas.length)*100}%`;actual.respuestas.forEach((respuesta,i)=>{const btn=document.createElement('button');btn.className='answer';btn.innerHTML=`<span class="letter">${String.fromCharCode(97+i)})</span> ${respuesta}`;btn.addEventListener('click',()=>comprobarRespuesta(i,btn));answersEl.appendChild(btn);});}
+function comprobarRespuesta(elegida,boton){if(respondida)return;respondida=true;const actual=preguntas[indice],botones=[...document.querySelectorAll('.answer')];botones.forEach((btn,i)=>{btn.disabled=true;if(i===actual.correcta)btn.classList.add('correct');});const ok=elegida===actual.correcta;if(ok){aciertos++;feedbackTitleEl.textContent='¡Correcto!';feedbackTitleEl.className='ok';}else{fallos++;boton.classList.add('wrong');feedbackTitleEl.textContent='No es correcta';feedbackTitleEl.className='bad';if(!modoRevision)falladas.push(actual);}hitsEl.textContent=aciertos;missesEl.textContent=fallos;feedbackTextEl.innerHTML=actual.explicacion.map(linea=>`<p>${linea}</p>`).join('');feedbackEl.classList.add('show');nextBtn.classList.remove('hidden');nextBtn.textContent=indice===preguntas.length-1?'Ver resultado':'Siguiente pregunta';}
+function siguiente(){if(indice<preguntas.length-1){indice++;cargarPregunta();}else mostrarResultado();}
+function mostrarResultado(){progressBar.style.width='100%';quizCard.classList.add('hidden');resultCard.classList.remove('hidden');const pct=Math.round((aciertos/preguntas.length)*100);finalScore.textContent=`Has obtenido ${aciertos} aciertos y ${fallos} fallos (${pct}%).`;if(modoRevision){finalMessage.textContent=fallos===0?'Muy bien: has corregido todos los fallos de esta revisión.':'Puedes volver a revisar los fallos que queden.';reviewBtn.classList.toggle('hidden',fallos===0);}else{finalMessage.textContent=pct>=80?'Muy buen resultado.':pct>=50?'Buen avance. Revisa las preguntas falladas para afianzar conceptos.':'Toca repasar con calma. La revisión de fallos te ayudará a centrarte en los puntos débiles.';reviewBtn.classList.toggle('hidden',falladas.length===0);}}
+function reiniciarCompleto(){preguntas=[...preguntasOriginales];modoRevision=false;indice=0;aciertos=0;fallos=0;falladas=[];hitsEl.textContent='0';missesEl.textContent='0';quizCard.classList.remove('hidden');resultCard.classList.add('hidden');cargarPregunta();}
+function revisarFallos(){if(!falladas.length)return;preguntas=[...falladas];modoRevision=true;indice=0;aciertos=0;fallos=0;falladas=[];hitsEl.textContent='0';missesEl.textContent='0';quizCard.classList.remove('hidden');resultCard.classList.add('hidden');cargarPregunta();}
+nextBtn.addEventListener('click',siguiente);restartBtn.addEventListener('click',reiniciarCompleto);restartFinalBtn.addEventListener('click',reiniciarCompleto);reviewBtn.addEventListener('click',revisarFallos);cargarPregunta();
+</script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Autoevaluación Micología - Unidad 3</title>
+<style>
+:root{--bg:#f3f0e8;--card:#fffaf0;--primary:#6f4e37;--primary-dark:#4b3621;--accent:#b8860b;--ok:#1f7a3a;--bad:#b3261e;--text:#2f2a24;--muted:#6b6258;--border:#dfd2bc}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#fff8dc 0,var(--bg) 45%,#e7ddca 100%);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:28px 14px}.app{width:100%;max-width:900px}header{text-align:center;margin-bottom:22px}header h1{margin:0 0 8px;color:var(--primary-dark);font-size:clamp(1.8rem,4vw,2.6rem)}header p{margin:0;color:var(--muted);font-size:1rem}.card{background:rgba(255,250,240,.96);border:1px solid var(--border);border-radius:22px;padding:clamp(18px,4vw,34px);box-shadow:0 18px 50px rgba(61,43,31,.16)}.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px}.badge{background:#efe2c6;color:var(--primary-dark);padding:8px 12px;border-radius:999px;font-weight:700;font-size:.92rem}.score{display:flex;gap:8px;flex-wrap:wrap}.score span{padding:8px 12px;border-radius:999px;font-weight:700;background:#f5ead2;border:1px solid var(--border)}.question{font-size:clamp(1.1rem,2.5vw,1.35rem);line-height:1.45;font-weight:750;margin:0 0 18px;color:var(--primary-dark)}.answers{display:grid;gap:12px;margin-bottom:18px}button.answer{border:2px solid var(--border);background:#fffdf7;color:var(--text);padding:14px 16px;border-radius:16px;text-align:left;cursor:pointer;font-size:1rem;line-height:1.35;transition:transform .12s ease,border-color .12s ease,background .12s ease}button.answer:hover:not(:disabled){transform:translateY(-1px);border-color:var(--accent);background:#fff8e6}button.answer:disabled{cursor:default;opacity:.95}button.answer.correct{border-color:var(--ok);background:#eaf7ee}button.answer.wrong{border-color:var(--bad);background:#fdecea}.feedback{display:none;margin-top:18px;padding:18px;border-radius:18px;border:1px solid var(--border);background:#fff7e3}.feedback.show{display:block}.feedback h2{margin:0 0 12px;font-size:1.15rem}.feedback h2.ok{color:var(--ok)}.feedback h2.bad{color:var(--bad)}.feedback p{margin:0 0 9px;line-height:1.5}.feedback p:last-child{margin-bottom:0}.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;flex-wrap:wrap}.primary-btn,.secondary-btn{border:none;border-radius:999px;padding:12px 18px;font-weight:750;cursor:pointer;font-size:1rem}.primary-btn{background:var(--primary);color:white}.primary-btn:hover{background:var(--primary-dark)}.secondary-btn{background:#eadcc3;color:var(--primary-dark)}.progress{height:10px;background:#eadcc3;border-radius:999px;overflow:hidden;margin-bottom:18px}.progress>div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--primary));transition:width .25s ease}.result{text-align:center}.result h2{font-size:2rem;margin:0 0 12px;color:var(--primary-dark)}.result p{font-size:1.1rem;color:var(--muted)}.hidden{display:none}.letter{font-weight:800;color:var(--primary-dark);margin-right:6px}footer{text-align:center;color:var(--muted);margin-top:16px;font-size:.92rem}
+</style>
+</head>
+<body>
+<main class="app">
+<header><h1>Autoevaluación de Micología</h1><p>Unidad 3 · Ecología de los hongos</p></header>
+<section class="card" id="quiz-card"><div class="topbar"><span class="badge" id="counter"></span><div class="score"><span>✅ Aciertos: <strong id="hits">0</strong></span><span>❌ Fallos: <strong id="misses">0</strong></span></div></div><div class="progress"><div id="progress-bar"></div></div><p class="question" id="question"></p><div class="answers" id="answers"></div><div class="feedback" id="feedback"><h2 id="feedback-title"></h2><div id="feedback-text"></div></div><div class="actions"><button class="secondary-btn hidden" id="restart-btn">Volver a empezar</button><button class="primary-btn hidden" id="next-btn">Siguiente pregunta</button></div></section>
+<section class="card result hidden" id="result-card"><h2>Resultado final</h2><p id="final-score"></p><p id="final-message"></p><div class="actions" style="justify-content:center"><button class="secondary-btn" id="restart-final-btn">Volver a empezar</button><button class="primary-btn hidden" id="review-btn">Revisar fallos</button></div></section>
+<footer>Curso de Orientador Micológico · Cuestionario interactivo</footer>
+</main>
+<script>
+const preguntasOriginales = [
+  {
+    "pregunta": "1. En relación a las formas de vida de los hongos:",
+    "respuestas": [
+      "La mayoría de hongos saprobios son difíciles de cultivar, excepto las trufas (truficultura) y las criadillas y trufas del desierto (turmicultura).",
+      "La mayoría de hongos micorrícicos no se cultivan, excepto las trufas (truficultura) y las criadillas y trufas del desierto (turmicultura).",
+      "Los hongos micorrícicos no se pueden cultivar, porque necesitan una bacteria del suelo que intervenga en la formación de las micorrizas.",
+      "Los champiñones (Agaricus bisporus) y la seta de ostra (Pleurotus ostreatus) son los hongos micorrícicos más cultivados en el mundo."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "La mayoría de hongos micorrícicos son difíciles de cultivar porque dependen de la asociación con raíces de plantas.",
+      "Las trufas y las criadillas o trufas del desierto son excepciones importantes, con técnicas específicas de cultivo.",
+      "Los champiñones y las setas de ostra son saprobios cultivables, no micorrícicos.",
+      "La forma de vida condiciona mucho la posibilidad de cultivo."
+    ]
+  },
+  {
+    "pregunta": "2. En relación a las formas de vida de los hongos:",
+    "respuestas": [
+      "Los hongos sapromicorrícicos son aquellos hongos que viven y colonizan a otros seres vivos, alimentándose de ellos y produciéndoles la muerte, y posteriormente descomponen su materia orgánica muerta.",
+      "Los hongos saproparásitos, también denominados parásitos facultativos, son aquellos hongos que establecen relaciones simbióticas con plantas, pero son favorecidos cuando se produce una alteración de su hábitat.",
+      "Los hongos sapromicorrícicos son aquellos hongos muy sencillos de cultivar ya que tiene un modo de vida saprófito, además de micorrizógeno.",
+      "Los hongos sapromicorrícicos también denominados saprosimbióticos, son aquellos hongos que establecen relaciones simbióticas con plantas, pero son favorecidos cuando se produce una alteración de su hábitat."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Los hongos sapromicorrícicos o saprosimbióticos establecen simbiosis con plantas, pero se ven favorecidos por alteraciones del hábitat.",
+      "Es un modo de vida intermedio que combina rasgos micorrícicos y cierta capacidad saprobia.",
+      "Las colmenillas son un buen ejemplo de hongos asociados a este comportamiento.",
+      "Los saproparásitos producen la muerte del hospedador y después descomponen su materia."
+    ]
+  },
+  {
+    "pregunta": "3. En relación al comportamiento de los hongos frente a la luz solar:",
+    "respuestas": [
+      "Los hongos umbrófilos son aquellos hongos que se desarrollan fundamentalmente en bosques abiertos y soleados con gran incidencia de la luz solar.",
+      "Buenos ejemplos de hongos heliófilos son el huevo de rey (Amanita caesarea) y el hongo negro (Boletus aereus), el boleto de verano (Boletus reticulatus) y el rebozuelo (Cantharellus pallens).",
+      "Buenos ejemplos de hongos umbrófilos son el huevo de rey (Amanita caesarea) y el hongo negro (Boletus aereus).",
+      "Los hongos heliófilos son aquellos hongos que se desarrollan en bosques cerrados, húmedos y umbríos con poca incidencia de la luz solar."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "Los hongos heliófilos se desarrollan preferentemente en ambientes abiertos, soleados o adehesados.",
+      "Amanita caesarea, Boletus aereus, Boletus reticulatus y Cantharellus pallens son buenos ejemplos.",
+      "Los hongos umbrófilos prefieren bosques cerrados, húmedos y con poca incidencia directa de luz.",
+      "La luz suele relacionarse también con temperatura, humedad y tipo de bosque."
+    ]
+  },
+  {
+    "pregunta": "4. En relación al comportamiento de los hongos frente a la temperatura:",
+    "respuestas": [
+      "Los hongos psicrófilos son aquellos hongos que se desarrollan a temperaturas elevadas.",
+      "Los hongos termófilos son aquellos hongos que se desarrollan a temperaturas elevadas, generalmente son también heliófilos.",
+      "Buenos ejemplos de hongos termófilos son la seta de pie aterciopelado (Flammulina velutipes), el marzuelo (Hygrophorus marzuolus), la capuchina (Tricholoma portentosum) y el pie violeta (Collybia personata).",
+      "La seta de pie aterciopelado (Flammulina velutipes), tiene la peculiaridad de que su micelio activa la fructificación de cuerpos fructíferos a elevadas temperaturas."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "Los hongos termófilos se desarrollan preferentemente con temperaturas elevadas.",
+      "Muchas especies termófilas aparecen en ambientes abiertos y soleados, por eso suelen relacionarse con el comportamiento heliófilo.",
+      "Los hongos psicrófilos están adaptados a temperaturas bajas.",
+      "Flammulina velutipes, Hygrophorus marzuolus y Tricholoma portentosum son especies más propias de ambientes fríos."
+    ]
+  },
+  {
+    "pregunta": "5. En relación al comportamiento de los hongos frente al pH:",
+    "respuestas": [
+      "Los hongos acidófilos son aquellos hongos que se desarrollan fundamentalmente en pH básico, superior a 7.",
+      "Los hongos basófilos son aquellos hongos que se desarrollan fundamentalmente en pH ácido, inferior a 7.",
+      "Los hongos indiferentes al pH son aquellos hongos que se desarrollan generalmente en pH neutro, cercano a 7.",
+      "Los hongos acidófilos son aquellos hongos que se desarrollan fundamentalmente en pH ácido, inferior a 7."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Los hongos acidófilos se desarrollan preferentemente en suelos o sustratos con pH ácido, inferior a 7.",
+      "Los basófilos prefieren pH básicos, superiores a 7.",
+      "Los neutrófilos se asocian a pH cercano a 7.",
+      "Los indiferentes pueden desarrollarse en un rango amplio de pH."
+    ]
+  },
+  {
+    "pregunta": "6. En relación a los hongos micorrícicos y las micorrizas:",
+    "respuestas": [
+      "Los principales beneficios de las micorrizas para la planta son el aporte de hidratos de carbono procedente de la fotosíntesis del hongo y la rehidratación de las plantas en periodos de sequía durante la noche.",
+      "Los principales beneficios de las micorrizas para los hongos son el aumento de la superficie de absorción de agua y nutrientes, la protección frente a patógenos y la mayor resistencia a las heladas.",
+      "Los principales beneficios de las micorrizas para el hongo son el aporte de hidratos de carbono procedente de la fotosíntesis de la planta y la rehidratación de los hongos en periodos de sequía durante la noche.",
+      "Los principales beneficios de las micorrizas para el suelo son el aumento de la superficie de absorción de agua y nutrientes, la protección frente a patógenos y la mayor resistencia a las heladas."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "El hongo recibe hidratos de carbono producidos por la planta mediante la fotosíntesis.",
+      "También puede beneficiarse de la rehidratación nocturna en periodos secos.",
+      "La planta mejora la absorción de agua y nutrientes gracias al micelio.",
+      "La micorriza es una simbiosis: ambos organismos obtienen beneficios."
+    ]
+  },
+  {
+    "pregunta": "7. En relación a las micorrizas:",
+    "respuestas": [
+      "En las ectomicorrizas las hifas del hongo penetran en el interior de la raíz sin penetrar en el interior de las células, envolviendo externamente las raíces formando un manto externo de hifas y penetrando en el espacio intercelular de las células corticales formando la red de Hartig.",
+      "La mayoría de hongos ascomycetes y basidiomycetes forman endomicorrizas con árboles de gran importancia forestal.",
+      "La mayoría de plantas en el mundo no tienen micorrizas, solo aparecen las micorrizas en ambientes extremos como el polo norte y la Antártida.",
+      "La mayoría de zigomycetes forman ectomicorrizas."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "En las ectomicorrizas el hongo rodea externamente la raíz formando un manto de hifas.",
+      "Las hifas penetran entre las células corticales, pero no dentro de ellas.",
+      "La red de Hartig es la estructura intercelular donde se produce el intercambio entre planta y hongo.",
+      "Este tipo de micorriza es frecuente en muchos árboles forestales."
+    ]
+  },
+  {
+    "pregunta": "8. En relación a los hongos parásitos:",
+    "respuestas": [
+      "Los hongos parásitos se pueden clasificar en función del hospedador en hongos parásitos facultativos (necrotróficos) y en hongos parásitos obligados (biotróficos).",
+      "Buenos ejemplos de hongos parásitos obligados (biotróficos) son la seta de color de miel (Armillaria mellea), la seta pipa (Ganoderma lucidum) y la gallina (Grifola frondosa).",
+      "Los hongos parásitos facultativos (necrotróficos) son aquellos hongos que producen la muerte del hospedador y luego descomponen su materia orgánica muerta.",
+      "Buenos ejemplos de hongos parásitos facultativos (biotróficos) son la roya de la malva (Puccinia malvacearum) y el huitlacoche (Mycosarcoma maydis)."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "Los parásitos facultativos o necrotróficos pueden matar al hospedador y después descomponer su materia orgánica.",
+      "Actúan primero como parásitos y después como saprobios.",
+      "Armillaria mellea, Ganoderma lucidum y Grifola frondosa son ejemplos de este comportamiento.",
+      "Los parásitos obligados o biotróficos necesitan mantener vivo al hospedador para completar su ciclo vital.",
+      "La roya de la malva, Puccinia malvacearum, y el huitlacoche, Mycosarcoma maydis, son ejemplos de hongos biotróficos.",
+      "La clasificación entre necrotróficos y biotróficos no se hace en función del hospedador, sino del modo en que el hongo obtiene los nutrientes."
+    ]
+  },
+  {
+    "pregunta": "9. En relación a los hongos patógenos del arbolado urbano:",
+    "respuestas": [
+      "Los hongos patógenos del arbolado urbano son aquellos hongos micorrícicos que aparecen de forma frecuente en zonas urbanas.",
+      "Buenos ejemplos de patógenos del arbolado urbano son el champiñón amarilleante (Agaricus xanthodermus), la cicuta verde (Amanita phalloides) y la bruja (Pseudosperma rimosum), ya que son especies tóxicas que pueden provocar intoxicaciones o incluso la muerte de personas y de animales de compañía.",
+      "Los hongos patógenos del arbolado urbano son aquellos hongos que provocan graves daños en el arbolado urbano de parques y jardines, provocando generalmente podredumbre de la madera (hongos xilófagos o caída de hojas o de acículas).",
+      "Los hongos patógenos del arbolado urbano son aquellos hongos entomoparásitos que fructifican sobre los insectos patógenos del arbolado urbano, realizado de esta forma un control biológico de estos insectos."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "Los hongos patógenos del arbolado urbano dañan árboles de parques, jardines y calles.",
+      "Muchos producen podredumbre de la madera, caída de hojas o daños en acículas.",
+      "Su estudio es importante porque pueden aumentar el riesgo de caída de ramas o árboles.",
+      "No se definen por ser tóxicos para personas, sino por afectar al arbolado."
+    ]
+  },
+  {
+    "pregunta": "10. En relación a los hongos saprobios:",
+    "respuestas": [
+      "Los corros de brujas son sectores anulares o anillos formados por el crecimiento del micelio de un hongo saprobio, que generalmente se manifiestan por una banda de distinto color de la hierba.",
+      "Los hongos micorrícicos forman corros de brujas alrededor de la planta hospedadora.",
+      "Ejemplos típicos de hongos que forman corros de brujas son el hongo negro (Boletus aereus) el boleto pinicola (Boletus pinophilus) y el boleto de verano (Boletus reticulatus).",
+      "Los corros de brujas son agrupaciones misteriosas de brujas entorno a los hongos parásitos de gramíneas para realizar maleficios y conjuros."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "Los corros de brujas son anillos producidos por el crecimiento radial del micelio.",
+      "En praderas suelen verse como bandas circulares de color diferente en la hierba.",
+      "A medida que el micelio se expande, las setas fructifican en la periferia.",
+      "Son típicos de algunos hongos saprobios de pastizales."
+    ]
+  },
+  {
+    "pregunta": "11. En relación a los hongos saprófitos:",
+    "respuestas": [
+      "Los hongos folícolas son aquellos hongos que fructifican sobre folios de papel.",
+      "Los hongos pirófilos son aquellos hongos tóxicos que vuelven pirados a los animales y personas que los consumen.",
+      "Un ejemplo típico de hongo queratinofílico es Onygena equina, que fructifica sobre restos con abundante queratina como cuernos de bóvidos y cérvidos y pezuñas de equinos.",
+      "Los hongos coprófilos son aquellos hongos que fructifican sobre restos leñosos."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "Los hongos queratinofílicos se desarrollan sobre restos ricos en queratina.",
+      "Onygena equina fructifica sobre cuernos y pezuñas, materiales muy ricos en esta proteína.",
+      "Los coprófilos crecen sobre excrementos.",
+      "Los folícolas se asocian a hojas, y los pirófilos aparecen en terrenos quemados."
+    ]
+  },
+  {
+    "pregunta": "12. En relación a los bosques de betuláceas:",
+    "respuestas": [
+      "Los bosques de betuláceas en España están formados principalmente por el aliso común (Alnus glutinosa), el aliso lusitano (Alnus lusitanica), el abedul pubescente (Betula pubescens), el abedul pendulo (Betula pendula) y el avellano (Corylus avellana).",
+      "Las especies más comunes en las alisedas son el boleto (Boletus edulis), el rebozuelo (Cantharellus cibarius), el yesquero de abedul (Pyptoporus betulinus), el níscalo de abedul (Lactarius torminosus) y el boleto de abedul (Leccinum scabrum).",
+      "Las especies más comunes en los abedulares son Ciboria corylii, Calycina citrina, Lactarius pyrogalus y Plicaturopsis crispa.",
+      "Ninguna de las anteriores es correcta."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "Las betuláceas incluyen alisos, abedules y avellanos.",
+      "En España destacan Alnus glutinosa, Alnus lusitanica, Betula pubescens, Betula pendula y Corylus avellana.",
+      "La opción b mezcla especies características de alisedas con otras propias de abedulares.",
+      "La opción c recoge especies asociadas principalmente a avellanares, por lo que no representa correctamente a los abedulares.",
+      "Cada bosque de betuláceas posee una comunidad fúngica característica."
+    ]
+  },
+  {
+    "pregunta": "13. En relación a los bosques de fagáceas:",
+    "respuestas": [
+      "Los bosques de castaño (Castanea sativa) son los bosques más frecuentes.",
+      "Los bosques de haya (Fagus sylvatica) se encuentran fundamentalmente en los principales sistemas montañosos del norte peninsular (Cordillera Cantábrica, Montes vascos, Pirineos y Sistema Ibérico, quedando pequeñas poblaciones relictas en la Sierra de Ayllón y en los Puertos de Beceite.",
+      "Las principales especies que se pueden encontrar en los encinares de Quercus rotundifolia son la seta de porcelana (Mucidula mucida) y los dedos de muerto (Xylaria polymorpha).",
+      "Los bosques de fagáceas más frecuentes son los alcornocales de Quercus suber y los robledales de roble pubescente (Quercus pubescens) y de roble carballo (Quercus robur)."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "Los hayedos de Fagus sylvatica se localizan principalmente en montañas húmedas del norte peninsular.",
+      "Son frecuentes en la Cordillera Cantábrica, Montes Vascos, Pirineos y Sistema Ibérico.",
+      "También existen poblaciones relictas en la Sierra de Ayllón y los Puertos de Beceite.",
+      "La opción c es incorrecta porque Mucidula mucida y Xylaria polymorpha son especies típicamente asociadas a hayedos y madera de haya, no a encinares.",
+      "La opción d es incorrecta porque los bosques de fagáceas más frecuentes en España son los encinares y diversos tipos de robledales, no sólo los alcornocales y los robledales citados.",
+      "Las fagáceas incluyen hayas, robles, encinas, alcornoques y castaños."
+    ]
+  },
+  {
+    "pregunta": "14. En relación a los bosques de pináceas:",
+    "respuestas": [
+      "Los pinares de pino negro (Pinus uncinata) se encuentran en las zonas más elevadas del Pirineo y umbrías del Prepirineo, quedando pequeñas poblaciones relictas en la Sierra de Guara, Sierra de Gúdar y en la Sierra Cebollera y repoblaciones en el Moncayo.",
+      "En los pinares de pino albar (Pinus sylvestris) pueden aparecer numerosas especies de interés socioeconómico, entre las que destacan el boleto (Boletus edulis), el boleto pinicola (Boletus pinophilus), el rebozuelo (Cantharellus cibarius), la angula de monte (Craterellus lutescens), la trompeta amarilla (Craterellus tubaeformis), el marzuelo (Hygrophorus marzuolus), la colmenillas (Morchella deliciosa, Morchella purpurascens, Morchella tridentina), los níscalos (Lactarius deliciosus, L. sanguifllus), la capuchina (Tricholoma portentosum).",
+      "En los pinsapares de abeto pinsapo (Abies pinsapo) fructifican algunas especies de colmenillas entre las que destacan Morchella mediterraneensis y Morchella tridentina.",
+      "Todas las anteriores respuestas son correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Todas las respuestas son correctas porque describen distintos bosques de pináceas y sus hongos asociados.",
+      "Los pinares de pino negro se relacionan con zonas elevadas y frías.",
+      "Los pinares de pino albar albergan especies muy apreciadas como boletos, níscalos, rebozuelos y marzuelos.",
+      "Los pinsapares también pueden presentar colmenillas asociadas a este tipo de ambiente."
+    ]
+  },
+  {
+    "pregunta": "15. En relación a los bosques de salicáceas:",
+    "respuestas": [
+      "Los bosques de salicáceas se encuentran cercanos a cursos de agua de los principales ríos, arroyos, lagunas y lagos.",
+      "Las especies arbóreas más frecuentes en los bosques de salicáceas son el álamo blanco (Populus alba), el álamo común (Populus nigra), el álamo temblón (Populus tremula), el álamo híbrido (Populus x canadensis), el sauce blanco (Salix alba) y el sauce atrocinereo (Salix atrocinerea).",
+      "Las especies de hongos más conocidos que fructifican en bosques de salicáceas son la seta de chopo (Cyclocybe cylindracea), las colmenillas (Morchella esculenta, Morchella semilibera), el pollo de los bosques (Laetiporus sulphureus) y el hongo de álamo blanco (Leccinum duriusculum).",
+      "Todas las anteriores respuestas son correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Todas las respuestas son correctas porque describen hábitat, árboles y hongos asociados a salicáceas.",
+      "Las salicáceas suelen encontrarse cerca de cursos de agua y zonas húmedas.",
+      "Incluyen álamos, chopos y sauces.",
+      "Entre los hongos asociados destacan la seta de chopo, colmenillas, Laetiporus sulphureus y Leccinum duriusculum."
+    ]
+  },
+  {
+    "pregunta": "16. En relación a las praderas, pastizales y claros herbosos de la Comunidad Autónoma de Aragón:",
+    "respuestas": [
+      "La mayoría de especies que fructifican en praderas, pastizales y claros herbosos son especies saprobias, generalmente pratícolas.",
+      "El champiñón gigante (Agaricus crocodilinus) es una especie buena acumuladora de plomo.",
+      "En las praderas, pastizales y claros herbosos destaca la presencia de numerosas especies micorrizógenas como los boletos (Boletus spp.), las amanitas (Amanita spp.) y los níscalos (Lactarius spp.).",
+      "El perrechico (Calocybe gambosa) es una especie que fructifica generalmente en praderas, pastizales y claros herbosos durante el otoño y el invierno."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "En praderas, pastizales y claros herbosos predominan muchos hongos saprobios.",
+      "Pratícola significa que vive o fructifica en prados y pastizales.",
+      "Boletos, amanitas y níscalos suelen ser micorrícicos y se asocian más a árboles o matorrales.",
+      "El perrechico fructifica sobre todo en primavera, no en otoño e invierno."
+    ]
+  },
+  {
+    "pregunta": "17. En relación a los tilares:",
+    "respuestas": [
+      "Los tilares de Tilia platyphyllos son los bosques más frecuentes de la depresión del Ebro.",
+      "Sarcoscypha jurana es una especie saprobia que fructifica de forma exclusiva sobre restos de madera de tilos.",
+      "Los tilares de Tilia plathyphyllos se encuentran fundamentalmente en la Cordillera Cantábrica, los Pirineos y en pequeños enclaves del Sistema Ibérico.",
+      "La b y c son las dos respuestas correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Sarcoscypha jurana es una especie saprobia asociada de forma muy estrecha a madera de tilo.",
+      "Los tilares de Tilia platyphyllos aparecen sobre todo en zonas húmedas de montaña.",
+      "Se localizan en la Cordillera Cantábrica, Pirineos y pequeños enclaves del Sistema Ibérico.",
+      "Los tilares no son bosques frecuentes de la depresión del Ebro."
+    ]
+  },
+  {
+    "pregunta": "18. En relación a las turberas:",
+    "respuestas": [
+      "Las turberas son ambientes oligotrofos muy pobres en nutrientes, por lo que algunas plantas como el atrapamoscas (Drosera rotundifolia), que atrapa los insectos para posteriormente digerir y absorber sus nutrientes.",
+      "Mycena silvae-nigrae es una especie micorricica que fructifica sobre restos de madera de pináceas en el interior de las turberas a finales de primavera o principios de verano.",
+      "Las turberas ácidas se encuentran tapizadas por numerosas hepáticas de los géneros Polytrichum y Sphagnum.",
+      "Gomphidius roseus es una especie micorrícica porque parasita el micelio de Suillus bovinus."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "Las turberas son ambientes oligotrofos, es decir, muy pobres en nutrientes.",
+      "Algunas plantas como Drosera rotundifolia capturan insectos para obtener nutrientes adicionales.",
+      "Sphagnum y Polytrichum son musgos, no hepáticas.",
+      "Las turberas son ecosistemas muy especializados y con comunidades fúngicas particulares."
+    ]
+  },
+  {
+    "pregunta": "19. En relación a los bosques de repoblación:",
+    "respuestas": [
+      "En los bosques de repoblación de cedros del Atlas (Cedrus atlantica) fructifican algunas especies como Baeospora myosura, Geopora sumneriana, Pseudopithyella minuscula y Hebeloma eburneum.",
+      "Los bosques de repoblación de abetos rojos (Picea abies) se encuentran principalmente en la Cornisa Cantábrica, los Pirineos y pequeños enclaves del Sistema Ibérico.",
+      "En los bosques de repoblación de abeto de Douglas (Pseudotsuga menziesii) fructifican algunas especies micorrícicas como Cortinarius cruentus, Rhizopogon villusulus y Suillus lakei.",
+      "Todas las repuestas anteriores son correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Todas las respuestas son correctas porque describen distintos bosques de repoblación y sus hongos asociados.",
+      "Cedrus atlantica, Picea abies y Pseudotsuga menziesii pueden formar repoblaciones con comunidades fúngicas propias.",
+      "Algunas especies aparecen ligadas a un árbol concreto o a un tipo de plantación.",
+      "Estas asociaciones son útiles para interpretar la ecología del hongo y el origen del bosque."
+    ]
+  },
+  {
+    "pregunta": "20. En relación a los cultivos:",
+    "respuestas": [
+      "En los almendros de almendros (Prunus dulcis) no fructifica ninguna especie de hongo.",
+      "En los olivares de olivo (Olea europaea) fructifican numerosas especies como Heliocybe sulcata, Morchella elata, Omphalotus olearius, Xylaria putaminum.",
+      "En los cultivos de vid (Vitis vinifera) se han encontrado algunas especies como Mattirilomyces terfezioides o Morchella palazonii.",
+      "Ninguna de las respuestas anteriores es correcta."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "En los olivares pueden fructificar diversas especies asociadas al suelo, la madera o los restos vegetales.",
+      "Entre ellas destacan Heliocybe sulcata, Morchella elata, Omphalotus olearius y Xylaria putaminum.",
+      "Omphalotus olearius es una especie muy característica de olivos y otros planifolios mediterráneos.",
+      "La opción c es incorrecta porque Mattirolomyces terfezioides y Morchella palazonii no son especies características de los viñedos de forma generalizada.",
+      "Los cultivos agrícolas pueden albergar comunidades fúngicas muy diferentes según el tipo de cultivo, el manejo del suelo y la vegetación acompañante."
+    ]
+  }
+];
+let preguntas=[...preguntasOriginales],modoRevision=false,indice=0,aciertos=0,fallos=0,respondida=false,falladas=[];
+const $=id=>document.getElementById(id), questionEl=$('question'), answersEl=$('answers'), feedbackEl=$('feedback'), feedbackTitleEl=$('feedback-title'), feedbackTextEl=$('feedback-text'), nextBtn=$('next-btn'), restartBtn=$('restart-btn'), restartFinalBtn=$('restart-final-btn'), reviewBtn=$('review-btn'), counterEl=$('counter'), hitsEl=$('hits'), missesEl=$('misses'), progressBar=$('progress-bar'), quizCard=$('quiz-card'), resultCard=$('result-card'), finalScore=$('final-score'), finalMessage=$('final-message');
+function cargarPregunta(){respondida=false;const actual=preguntas[indice];counterEl.textContent=`${modoRevision?'Revisión':'Pregunta'} ${indice+1} de ${preguntas.length}`;questionEl.textContent=actual.pregunta;answersEl.innerHTML='';feedbackEl.classList.remove('show');nextBtn.classList.add('hidden');restartBtn.classList.remove('hidden');progressBar.style.width=`${(indice/preguntas.length)*100}%`;actual.respuestas.forEach((respuesta,i)=>{const btn=document.createElement('button');btn.className='answer';btn.innerHTML=`<span class="letter">${String.fromCharCode(97+i)})</span> ${respuesta}`;btn.addEventListener('click',()=>comprobarRespuesta(i,btn));answersEl.appendChild(btn);});}
+function comprobarRespuesta(elegida,boton){if(respondida)return;respondida=true;const actual=preguntas[indice],botones=[...document.querySelectorAll('.answer')];botones.forEach((btn,i)=>{btn.disabled=true;if(i===actual.correcta)btn.classList.add('correct');});const ok=elegida===actual.correcta;if(ok){aciertos++;feedbackTitleEl.textContent='¡Correcto!';feedbackTitleEl.className='ok';}else{fallos++;boton.classList.add('wrong');feedbackTitleEl.textContent='No es correcta';feedbackTitleEl.className='bad';if(!modoRevision)falladas.push(actual);}hitsEl.textContent=aciertos;missesEl.textContent=fallos;feedbackTextEl.innerHTML=actual.explicacion.map(linea=>`<p>${linea}</p>`).join('');feedbackEl.classList.add('show');nextBtn.classList.remove('hidden');nextBtn.textContent=indice===preguntas.length-1?'Ver resultado':'Siguiente pregunta';}
+function siguiente(){if(indice<preguntas.length-1){indice++;cargarPregunta();}else mostrarResultado();}
+function mostrarResultado(){progressBar.style.width='100%';quizCard.classList.add('hidden');resultCard.classList.remove('hidden');const pct=Math.round((aciertos/preguntas.length)*100);finalScore.textContent=`Has obtenido ${aciertos} aciertos y ${fallos} fallos (${pct}%).`;if(modoRevision){finalMessage.textContent=fallos===0?'Muy bien: has corregido todos los fallos de esta revisión.':'Puedes volver a revisar los fallos que queden.';reviewBtn.classList.toggle('hidden',fallos===0);}else{finalMessage.textContent=pct>=80?'Muy buen resultado.':pct>=50?'Buen avance. Revisa las preguntas falladas para afianzar conceptos.':'Toca repasar con calma. La revisión de fallos te ayudará a centrarte en los puntos débiles.';reviewBtn.classList.toggle('hidden',falladas.length===0);}}
+function reiniciarCompleto(){preguntas=[...preguntasOriginales];modoRevision=false;indice=0;aciertos=0;fallos=0;falladas=[];hitsEl.textContent='0';missesEl.textContent='0';quizCard.classList.remove('hidden');resultCard.classList.add('hidden');cargarPregunta();}
+function revisarFallos(){if(!falladas.length)return;preguntas=[...falladas];modoRevision=true;indice=0;aciertos=0;fallos=0;falladas=[];hitsEl.textContent='0';missesEl.textContent='0';quizCard.classList.remove('hidden');resultCard.classList.add('hidden');cargarPregunta();}
+nextBtn.addEventListener('click',siguiente);restartBtn.addEventListener('click',reiniciarCompleto);restartFinalBtn.addEventListener('click',reiniciarCompleto);reviewBtn.addEventListener('click',revisarFallos);cargarPregunta();
+</script>
+</body>
+</html>
