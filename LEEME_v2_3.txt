@@ -1,9 +1,0 @@
-Entrenador micológico Moncayo v2.3
-
-Para actualizar GitHub Pages:
-1. Descomprime este ZIP.
-2. Sube index.html sustituyendo el anterior.
-3. Sube la carpeta imagenes/ completa o arrastra su contenido dentro de la carpeta imagenes del repositorio.
-4. Haz commit.
-
-No subas este ZIP como archivo único.
