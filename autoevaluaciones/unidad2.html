@@ -11,7 +11,12 @@
 </head>
 <body>
 <main class="app">
-<header><h1>Autoevaluación de Micología</h1><p>Unidad 2 · Caracteres diferenciadores de los hongos</p></header>
+<header><h1>Autoevaluación de Micología</h1><p>Unidad 2 · Caracteres diferenciadores de los hongos</p>
+<div style="margin:10px 0 0;">
+  <a href="../" style="color:#4b3621;margin:0 10px;text-decoration:none;font-weight:bold;">🏠 Inicio</a>
+  <a href="../entrenador/" style="color:#4b3621;margin:0 10px;text-decoration:none;font-weight:bold;">🍄 Entrenador</a>
+  <a href="./" style="color:#4b3621;margin:0 10px;text-decoration:none;font-weight:bold;">📚 Menú unidades</a>
+</div></header>
 <section class="card" id="quiz-card"><div class="topbar"><span class="badge" id="counter"></span><div class="score"><span>✅ Aciertos: <strong id="hits">0</strong></span><span>❌ Fallos: <strong id="misses">0</strong></span></div></div><div class="progress"><div id="progress-bar"></div></div><p class="question" id="question"></p><div class="answers" id="answers"></div><div class="feedback" id="feedback"><h2 id="feedback-title"></h2><div id="feedback-text"></div></div><div class="actions"><button class="secondary-btn hidden" id="restart-btn">Volver a empezar</button><button class="primary-btn hidden" id="next-btn">Siguiente pregunta</button></div></section>
 <section class="card result hidden" id="result-card"><h2>Resultado final</h2><p id="final-score"></p><p id="final-message"></p><div class="actions" style="justify-content:center"><button class="secondary-btn" id="restart-final-btn">Volver a empezar</button><button class="primary-btn hidden" id="review-btn">Revisar fallos</button></div></section>
 <footer>Curso de Orientador Micológico · Cuestionario interactivo</footer>
