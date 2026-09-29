@@ -91,7 +91,7 @@ async function loadINaturalistProject(){
 }
 function inatPhotoUrl(p){
  const u=(p&&p.url)||'';
- return u.replace(/square\.(jpg|jpeg|png)$/i,'large.$1').replace(/small\.(jpg|jpeg|png)$/i,'large.$1').replace(/medium\.(jpg|jpeg|png)$/i,'large.$1');
+ return u.replace(/square\.(jpg|jpeg|png)$/i,'medium.$1').replace(/small\.(jpg|jpeg|png)$/i,'medium.$1').replace(/medium\.(jpg|jpeg|png)$/i,'medium.$1');
 }
 function chooseInatObservation(card){
  const list=inatBySpecies.get(card.name)||[];
