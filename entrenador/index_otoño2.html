@@ -142,14 +142,14 @@ async function setCardPhoto(card){
    currentInatObs=null;currentInatPhotoIndex=0;updateInatPhotoNav();
    if(!card.image){img.removeAttribute('src');img.style.display='none';if(caption)caption.textContent='Mundo ideal · imagen fija pendiente';return;}
    img.src=card.image;img.style.display='block';
-   if(caption)caption.textContent=mode==='exam'?'Mundo ideal · Modo examen':'Mundo ideal · Identifica la especie';
+   if(caption)caption.textContent=mode==='exam'?'Mundo ideal · Modo examen':'';
    return;
  }
  // Baño de realidad: iNaturalist desde la primera ronda. Nunca sustituir por GitHub.
  if(saved){
    currentInatObs=saved.obs;currentInatPhotoIndex=saved.photoIndex||0;
    img.src=inatPhotoUrl(currentInatObs.photos[currentInatPhotoIndex]);img.style.display='block';updateInatPhotoNav();
-   if(caption)caption.textContent=mode==='exam'?'Baño de realidad · Modo examen':'Baño de realidad · Identifica la especie';
+   if(caption)caption.textContent=mode==='exam'?'Baño de realidad · Modo examen':'';
    return;
  }
  currentInatObs=null;currentInatPhotoIndex=0;updateInatPhotoNav();img.removeAttribute('src');img.style.display='none';
@@ -165,7 +165,7 @@ async function setCardPhoto(card){
  currentInatObs=obs;currentInatPhotoIndex=0;
  roundInatObs.set(card.name,{obs:obs,photoIndex:0});
  img.src=inatPhotoUrl(obs.photos[0]);img.style.display='block';updateInatPhotoNav();
- if(caption)caption.textContent=mode==='exam'?'Baño de realidad · Modo examen':'Baño de realidad · Identifica la especie';
+ if(caption)caption.textContent=mode==='exam'?'Baño de realidad · Modo examen':'';
 }
 function startNextImageRound(){
  if(experience==='reality')realityRound++;
