@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Autoevaluación Micología - Unidad 6 · Recolección, ecología y seguridad</title>
+<style>
+:root{--bg:#f3f0e8;--card:#fffaf0;--primary:#6f4e37;--primary-dark:#4b3621;--accent:#b8860b;--ok:#1f7a3a;--bad:#b3261e;--text:#2f2a24;--muted:#6b6258;--border:#dfd2bc}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#fff8dc 0,var(--bg) 45%,#e7ddca 100%);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:28px 14px}.app{width:100%;max-width:900px}header{text-align:center;margin-bottom:22px}header h1{margin:0 0 8px;color:var(--primary-dark);font-size:clamp(1.8rem,4vw,2.6rem)}header p{margin:0;color:var(--muted);font-size:1rem}.card{background:rgba(255,250,240,.96);border:1px solid var(--border);border-radius:22px;padding:clamp(18px,4vw,34px);box-shadow:0 18px 50px rgba(61,43,31,.16)}.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px}.badge{background:#efe2c6;color:var(--primary-dark);padding:8px 12px;border-radius:999px;font-weight:700;font-size:.92rem}.score{display:flex;gap:8px;flex-wrap:wrap}.score span{padding:8px 12px;border-radius:999px;font-weight:700;background:#f5ead2;border:1px solid var(--border)}.question{font-size:clamp(1.1rem,2.5vw,1.35rem);line-height:1.45;font-weight:750;margin:0 0 18px;color:var(--primary-dark)}.answers{display:grid;gap:12px;margin-bottom:18px}button.answer{border:2px solid var(--border);background:#fffdf7;color:var(--text);padding:14px 16px;border-radius:16px;text-align:left;cursor:pointer;font-size:1rem;line-height:1.35;transition:transform .12s ease,border-color .12s ease,background .12s ease}button.answer:hover:not(:disabled){transform:translateY(-1px);border-color:var(--accent);background:#fff8e6}button.answer:disabled{cursor:default;opacity:.95}button.answer.correct{border-color:var(--ok);background:#eaf7ee}button.answer.wrong{border-color:var(--bad);background:#fdecea}.feedback{display:none;margin-top:18px;padding:18px;border-radius:18px;border:1px solid var(--border);background:#fff7e3}.feedback.show{display:block}.feedback h2{margin:0 0 12px;font-size:1.15rem}.feedback h2.ok{color:var(--ok)}.feedback h2.bad{color:var(--bad)}.feedback p{margin:0 0 9px;line-height:1.5}.feedback p:last-child{margin-bottom:0}.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;flex-wrap:wrap}.primary-btn,.secondary-btn{border:none;border-radius:999px;padding:12px 18px;font-weight:750;cursor:pointer;font-size:1rem}.primary-btn{background:var(--primary);color:white}.primary-btn:hover{background:var(--primary-dark)}.secondary-btn{background:#eadcc3;color:var(--primary-dark)}.progress{height:10px;background:#eadcc3;border-radius:999px;overflow:hidden;margin-bottom:18px}.progress>div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--primary));transition:width .25s ease}.result{text-align:center}.result h2{font-size:2rem;margin:0 0 12px;color:var(--primary-dark)}.result p{font-size:1.1rem;color:var(--muted)}.hidden{display:none}.letter{font-weight:800;color:var(--primary-dark);margin-right:6px}footer{text-align:center;color:var(--muted);margin-top:16px;font-size:.92rem}
+</style>
+</head>
+<body>
+<main class="app">
+<header><h1>Autoevaluación de Micología</h1><p>Unidad 6 · Recolección, ecología y seguridad</p>
+<div style="margin:10px 0 0;">
+  <a href="../" style="color:#4b3621;margin:0 10px;text-decoration:none;font-weight:bold;">🏠 Inicio</a>
+  <a href="../entrenador/" style="color:#4b3621;margin:0 10px;text-decoration:none;font-weight:bold;">🍄 Entrenador</a>
+  <a href="./" style="color:#4b3621;margin:0 10px;text-decoration:none;font-weight:bold;">📚 Menú unidades</a>
+</div></header>
+<section class="card" id="quiz-card"><div class="topbar"><span class="badge" id="counter"></span><div class="score"><span>✅ Aciertos: <strong id="hits">0</strong></span><span>❌ Fallos: <strong id="misses">0</strong></span></div></div><div class="progress"><div id="progress-bar"></div></div><p class="question" id="question"></p><div class="answers" id="answers"></div><div class="feedback" id="feedback"><h2 id="feedback-title"></h2><div id="feedback-text"></div></div><div class="actions"><button class="secondary-btn hidden" id="restart-btn">Volver a empezar</button><button class="primary-btn hidden" id="next-btn">Siguiente pregunta</button></div></section>
+<section class="card result hidden" id="result-card"><h2>Resultado final</h2><p id="final-score"></p><p id="final-message"></p><div class="actions" style="justify-content:center"><button class="secondary-btn" id="restart-final-btn">Volver a empezar</button><button class="primary-btn hidden" id="review-btn">Revisar fallos</button></div></section>
+<footer>Curso de Orientador Micológico · Cuestionario interactivo</footer>
+</main>
+<script>
+const preguntasOriginales = [
+  {
+    "pregunta": "En relación al material recomendado:",
+    "respuestas": [
+      "Las navajas se llevan únicamente para preparar el bocadillo o la comida y pelar la fruta, pero no tienen una función específica durante la recolección de setas silvestres.",
+      "El bastón es muy importante para ahuyentar a otros recolectores de setas que están cogiendo setas en tu mismo lugar de recolección.",
+      "Las cestas son muy importantes para facilitar el transporte de las setas, permitir la aireación y la dispersión de las esporas y evitar la compactación de las setas.",
+      "Las bolsas de plástico son muy importantes para facilitar el transporte de las setas por el monte."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "La cesta no es solo un recipiente de transporte: al ser rígida evita que los ejemplares se aplasten y, al estar abierta o formada por mimbre, láminas o malla, permite que circule el aire y que las esporas que se desprenden puedan dispersarse durante el recorrido.<br><br>La navaja específica se utiliza para cortar las setas; el cepillo permite retirar restos de tierra y otros residuos adheridos y la regla medir los ejemplares cuando sea necesario. Dispone de filo curvado, cepillo y regla grabada en la empuñadura.<br><br>El bastón sirve como apoyo y sujeción al suelo, para retirar ramas y hojarasca, mover bultos sin agacharse y como protección frente a animales.<br><br>Las bolsas de plástico no deben sustituir a la cesta: no proporcionan la aireación ni la dispersión de esporas y favorecen la compactación de los ejemplares."
+    ],
+    "feedbackIncorrecto": [
+      "La navaja específica sí tiene funciones durante la recolección: se utiliza para cortar las setas; el cepillo permite retirar restos de tierra y otros residuos adheridos y la regla medir los ejemplares cuando sea necesario. Dispone de filo curvado, cepillo y regla grabada en la empuñadura.<br><br>La cesta no es solo un recipiente de transporte: al ser rígida evita que los ejemplares se aplasten y, al estar abierta o formada por mimbre, láminas o malla, permite que circule el aire y que las esporas que se desprenden puedan dispersarse durante el recorrido.<br><br>El bastón sirve como apoyo y sujeción al suelo, para retirar ramas y hojarasca, mover bultos sin agacharse y como protección frente a animales.<br><br>Las bolsas de plástico no deben sustituir a la cesta: no proporcionan la aireación ni la dispersión de esporas y favorecen la compactación de los ejemplares.",
+      "El bastón se recomienda como apoyo y sujeción al suelo, para apartar ramas u hojarasca, mover bultos sin agacharse y como protección frente a animales; no para enfrentarse a otros recolectores.<br><br>La cesta no es solo un recipiente de transporte: al ser rígida evita que los ejemplares se aplasten y, al estar abierta o formada por mimbre, láminas o malla, permite que circule el aire y que las esporas que se desprenden puedan dispersarse durante el recorrido.<br><br>La navaja específica se utiliza para cortar las setas; el cepillo permite retirar restos de tierra y otros residuos adheridos y la regla medir los ejemplares cuando sea necesario. Dispone de filo curvado, cepillo y regla grabada en la empuñadura.<br><br>Las bolsas de plástico no deben sustituir a la cesta: no proporcionan la aireación ni la dispersión de esporas y favorecen la compactación de los ejemplares.",
+      null,
+      "Las bolsas de plástico pueden transportar setas, pero no son el recipiente recomendado: no permiten la aireación y dispersión de esporas como una cesta y favorecen que los ejemplares se compacten.<br><br>La cesta, en cambio, facilita el transporte, protege los ejemplares frente al aplastamiento y permite la circulación del aire y la dispersión de las esporas.<br><br>La navaja específica se utiliza para cortar las setas; el cepillo permite retirar restos de tierra y otros residuos adheridos y la regla medir los ejemplares cuando sea necesario.<br><br>El bastón sirve como apoyo y sujeción al suelo, para retirar ramas y hojarasca, mover bultos sin agacharse y como protección frente a animales."
+    ]
+  },
+  {
+    "pregunta": "En relación a la indumentaria recomendada:",
+    "respuestas": [
+      "Los pantalones de trabajo en campo evitan que suframos pinchazos y rasguños en las piernas y también evitan que nos mojemos las piernas.",
+      "Las botas de montaña o de senderismo impermeables con suela antideslizante mejoran el agarre al suelo, evitan torceduras de tobillo y evitan que llegues con los pies mojados.",
+      "El chubasquero impermeable nos protege del frío y evita que nos mojemos el cuerpo y la cabeza.",
+      "Todas las respuestas son correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Las tres prendas cumplen funciones complementarias durante una salida al campo.<br><br>Los pantalones de trabajo protegen las piernas frente a pinchazos y rasguños y ayudan a evitar que se mojen.<br><br>Las botas impermeables con suela antideslizante mejoran el agarre, ayudan a prevenir torceduras de tobillo y mantienen los pies secos.<br><br>El chubasquero impermeable protege frente al frío y la lluvia, evitando que se mojen el cuerpo y la cabeza."
+    ],
+    "feedbackIncorrecto": [
+      "Esta afirmación es correcta, pero no es la respuesta más completa: los pantalones de trabajo protegen frente a pinchazos y rasguños y ayudan a evitar que se mojen las piernas.<br><br>También son correctas las afirmaciones sobre las botas impermeables con suela antideslizante, que mejoran el agarre, ayudan a evitar torceduras y mantienen los pies secos, y sobre el chubasquero, que protege del frío y la lluvia.<br><br>Por eso la respuesta que reúne correctamente las tres es «Todas las respuestas son correctas».",
+      "Esta afirmación es correcta, pero es incompleta: las botas impermeables con suela antideslizante mejoran el agarre, ayudan a evitar torceduras de tobillo y mantienen los pies secos.<br><br>Los pantalones de trabajo protegen las piernas de pinchazos, rasguños y humedad, y el chubasquero protege el cuerpo y la cabeza del frío y la lluvia.<br><br>Por eso la opción más completa es «Todas las respuestas son correctas».",
+      "Esta afirmación es correcta, pero es incompleta: el chubasquero impermeable protege del frío y evita que se mojen el cuerpo y la cabeza.<br><br>También son correctas las funciones indicadas para los pantalones de trabajo y para las botas impermeables con suela antideslizante.<br><br>Por eso la opción más completa es «Todas las respuestas son correctas».",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación a la edad de las plantas:",
+    "respuestas": [
+      "La edad de las plantas no influye nunca en la fructificación de las setas.",
+      "Las especies que fructifican en plantas muy jóvenes como Laccaria laccata o Pisolithus arhizus se denominan superpioneras.",
+      "Las especies que fructifican en bosques maduros como Amanita caesarea y Boletus edulis se denominan especies superpioneras.",
+      "Ninguna respuesta es correcta."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "La edad de la vegetación influye en la comunidad de hongos que puede aparecer.<br><br>Las especies superpioneras se asocian a plantas muy jóvenes; Laccaria laccata y Pisolithus arhizus son ejemplos de este grupo.<br><br>En el extremo opuesto, Amanita caesarea y Boletus edulis son ejemplos de especies tardías asociadas a bosques maduros."
+    ],
+    "feedbackIncorrecto": [
+      "La edad de las plantas sí puede influir en la fructificación: conforme madura la vegetación también puede cambiar la comunidad de hongos asociada.<br><br>Las especies superpioneras aparecen con plantas muy jóvenes; entre los ejemplos se encuentran Laccaria laccata y Pisolithus arhizus.<br><br>Amanita caesarea y Boletus edulis representan el extremo contrario: son especies tardías de bosques maduros.",
+      null,
+      "Amanita caesarea y Boletus edulis son ejemplos de especies tardías de bosques maduros, no de superpioneras.<br><br>La comunidad de hongos puede cambiar conforme madura la vegetación. Las especies superpioneras aparecen asociadas a plantas muy jóvenes; entre los ejemplos se incluyen Laccaria laccata y Pisolithus arhizus.",
+      "Sí hay una respuesta correcta: Laccaria laccata y Pisolithus arhizus son ejemplos de especies superpioneras asociadas a plantas muy jóvenes.<br><br>La edad de la vegetación puede influir en la comunidad de hongos; Amanita caesarea y Boletus edulis, por ejemplo, son especies tardías de bosques maduros."
+    ]
+  },
+  {
+    "pregunta": "En relación al requerimiento hídrico:",
+    "respuestas": [
+      "La mayoría de especies saprobias, la mayoría de especies micorrícicas termófilas y las especies adaptadas a climas áridos y desérticos presentan un ciclo de fructificación corto.",
+      "Algunos hongos se han adaptado al exceso de agua de ecosistemas muy húmedos mediante la aparición de formas secotioides y formas gastroides.",
+      "Todos los hongos tienen el mismo ciclo de fructificación, por lo que fructifican cuando se dan las condiciones todas las especies al mismo tiempo.",
+      "Buenos ejemplos de hongos con ciclo de fructificación largo son el hongo negro (Boletus aereus) y la seta de cardo (Pleurotus eryngii)."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "Un ciclo de fructificación corto implica que las setas pueden aparecer aproximadamente entre 3 y 15 días después de precipitaciones relativamente elevadas tras un periodo de estrés hídrico. Es característico de la mayoría de saprobios, de muchos micorrícicos termófilos y de especies adaptadas a ambientes áridos.<br><br>Los micorrícicos umbrófilos se asocian, en cambio, a ciclos más largos, de unos 16 a 40 días.<br><br>Las formas secotioides y gastroides son adaptaciones para reducir la pérdida de agua.<br><br>Boletus aereus y Pleurotus eryngii son ejemplos de especies con ciclo de fructificación corto."
+    ],
+    "feedbackIncorrecto": [
+      null,
+      "Las formas secotioides y gastroides no se presentan como adaptaciones al exceso de agua, sino como adaptaciones para reducir la pérdida de agua.<br><br>Un ciclo corto permite fructificar aproximadamente entre 3 y 15 días después de precipitaciones relativamente elevadas tras un periodo de estrés hídrico. Es frecuente en saprobios, micorrícicos termófilos y especies de ambientes áridos.<br><br>Los micorrícicos umbrófilos se relacionan con ciclos más largos, de unos 16 a 40 días.<br><br>Boletus aereus y Pleurotus eryngii son ejemplos de ciclo corto, no largo.",
+      "No todos los hongos responden al agua con el mismo ciclo de fructificación. Se distinguen ciclos cortos, de aproximadamente 3 a 15 días, y ciclos largos, de unos 16 a 40 días.<br><br>Los ciclos cortos son característicos de la mayoría de saprobios, de muchos micorrícicos termófilos y de especies adaptadas a ambientes áridos; los micorrícicos umbrófilos se asocian a ciclos más largos.<br><br>Las formas secotioides y gastroides son adaptaciones para reducir la pérdida de agua.<br><br>Boletus aereus y Pleurotus eryngii son ejemplos de ciclo corto.",
+      "Boletus aereus y Pleurotus eryngii son ejemplos de especies con ciclo de fructificación corto, no largo.<br><br>El ciclo corto se sitúa aproximadamente entre 3 y 15 días después de precipitaciones relativamente elevadas tras estrés hídrico y es frecuente en saprobios, micorrícicos termófilos y especies adaptadas a ambientes áridos.<br><br>Los micorrícicos umbrófilos se asocian a ciclos más largos, de unos 16 a 40 días.<br><br>Las formas secotioides y gastroides son adaptaciones para reducir la pérdida de agua."
+    ]
+  },
+  {
+    "pregunta": "En relación a la humedad ambiental:",
+    "respuestas": [
+      "Las especies termófilas y las especies que fructifican en zonas muy áridas como desiertos o zonas arenosas de dunas litorales necesitan elevada humedad relativa para fructificar.",
+      "Las especies que fructifican en zonas higroturbosas, turberas y tremedales, necesitan baja humedad relativa para fructificar.",
+      "Los hongos psicrófilos son aquellos que se desarrollan a bajas temperaturas, muchos de ellos son umbrófilos, por lo que necesitan muchas horas de luz solar.",
+      "La higrofanidad es la propiedad de algunos hongos de absorber y exhalar la humedad produciendo cambios de la coloración de la cutícula en función de la humedad ambiental."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "La higrofanidad es la capacidad de absorber y perder humedad produciendo cambios visibles en la coloración de la cutícula.<br><br>No debe confundirse con la reviviscencia: en esta el hongo puede absorber y perder humedad sin perder su actividad biológica.<br><br>Las especies de zonas higroturbosas, turberas, tremedales, riberas o ambientes posteriores al deshielo se relacionan con alta humedad relativa.<br><br>Las especies termófilas y las de ambientes muy áridos, como desiertos o dunas litorales, se relacionan con baja humedad relativa.<br><br>Los psicrófilos se desarrollan a bajas temperaturas y muchos son umbrófilos, por lo que suelen necesitar pocas horas de luz solar."
+    ],
+    "feedbackIncorrecto": [
+      "Las especies termófilas y las que fructifican en ambientes muy áridos, como desiertos o dunas litorales, se relacionan con baja humedad relativa, no con elevada.<br><br>La higrofanidad se reconoce porque la absorción y pérdida de humedad produce cambios en la coloración de la cutícula. La reviviscencia, en cambio, permite absorber y perder humedad sin perder la actividad biológica.<br><br>Las especies de zonas higroturbosas, turberas y tremedales necesitan alta humedad relativa.<br><br>Los psicrófilos se desarrollan a bajas temperaturas y muchos son umbrófilos, por lo que suelen necesitar pocas horas de luz solar.",
+      "Las especies que fructifican en zonas higroturbosas, turberas y tremedales necesitan alta humedad relativa, no baja.<br><br>La higrofanidad se reconoce porque la absorción y pérdida de humedad produce cambios en la coloración de la cutícula. La reviviscencia, en cambio, permite absorber y perder humedad sin perder la actividad biológica.<br><br>Las especies termófilas y las de ambientes muy áridos se relacionan con baja humedad relativa.<br><br>Los psicrófilos se desarrollan a bajas temperaturas y muchos son umbrófilos, por lo que suelen necesitar pocas horas de luz solar.",
+      "Los psicrófilos se desarrollan a bajas temperaturas y muchos son umbrófilos; precisamente por ello suelen necesitar pocas horas de luz solar, no muchas.<br><br>La higrofanidad se reconoce porque la absorción y pérdida de humedad produce cambios en la coloración de la cutícula. No debe confundirse con la reviviscencia, que permite absorber y perder humedad sin perder la actividad biológica.<br><br>Las especies termófilas y las de ambientes muy áridos se relacionan con baja humedad relativa.<br><br>Las especies de zonas higroturbosas, turberas y tremedales necesitan alta humedad relativa.",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación al pH del suelo:",
+    "respuestas": [
+      "El boleto (Boletus edulis) y el huevo de rey (Amanita caesarea) son especies indiferentes al pH, porque pueden fructificar prácticamente en cualquier pH del suelo.",
+      "Los hongos basófilos son aquellos que fructifican en pH básico, es decir, inferior a 7.",
+      "La harinera (Amanita ovoidea), el boleto de Satanás (Rubroboletus satanas) y la trufa negra (Tuber melanosporum) son especies basófilas, que fructifican generalmente en suelos con pH básicos, superiores a 7.",
+      "Ninguna de las anteriores es correcta."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "Los hongos basófilos fructifican en suelos básicos, con pH superior a 7. Amanita ovoidea, Rubroboletus satanas y Tuber melanosporum son ejemplos de especies basófilas.<br><br>Los acidófilos se asocian a pH inferior a 7 y los neutrófilos a valores próximos a 7."
+    ],
+    "feedbackIncorrecto": [
+      "Boletus edulis y Amanita caesarea no se presentan aquí como especies indiferentes capaces de fructificar prácticamente a cualquier pH.<br><br>Los hongos basófilos se asocian a pH superiores a 7; Amanita ovoidea, Rubroboletus satanas y Tuber melanosporum son ejemplos de este grupo.<br><br>Un pH inferior a 7 corresponde a condiciones ácidas, no básicas.",
+      "Está invertido el valor del pH: un suelo básico presenta un pH superior a 7, mientras que un pH inferior a 7 es ácido.<br><br>Amanita ovoidea, Rubroboletus satanas y Tuber melanosporum son ejemplos de especies basófilas.",
+      null,
+      "Sí hay una respuesta correcta: Amanita ovoidea, Rubroboletus satanas y Tuber melanosporum son especies basófilas y fructifican generalmente en suelos básicos, con pH superior a 7.<br><br>Los valores inferiores a 7 corresponden a suelos ácidos."
+    ]
+  },
+  {
+    "pregunta": "En relación a algunos factores de fructificación de las setas:",
+    "respuestas": [
+      "Las caras norte generalmente son más cálidas por lo que son importantes en épocas de mucho frío o demasiado lluviosas, mientras que las caras sur son más frescas, siendo importantes en épocas de sequía.",
+      "El sobrepisoteo excesivo no permite la recuperación de herbáceas y disminuye la aparición de numerosas especies de hongos pratícolas.",
+      "A medida que se sube en altitud aumenta la temperatura y en cambio, al descender en altitud disminuye la temperatura excepto en casos de inversión térmica.",
+      "Los hongos de carácter eurosiberiano son aquellos que generalmente fructifican en zonas mediterráneas por debajo de 1200 metros."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "El sobrepisoteo excesivo impide la recuperación de las herbáceas y reduce la aparición de numerosas especies de hongos pratícolas.<br><br>Las caras norte suelen ser más frescas y resultan importantes en épocas de sequía; las caras sur son más cálidas y cobran importancia en épocas frías o excesivamente lluviosas.<br><br>En general, al aumentar la altitud disminuye la temperatura, salvo situaciones como la inversión térmica.<br><br>Los hongos de carácter eurosiberiano se relacionan generalmente con zonas de montaña por encima de unos 1200 m, mientras que los mediterráneos predominan por debajo de esa cota."
+    ],
+    "feedbackIncorrecto": [
+      "La orientación está invertida: las caras norte suelen ser más frescas y son importantes en épocas de sequía; las caras sur son más cálidas y pueden ser favorables en épocas frías o excesivamente lluviosas.<br><br>El sobrepisoteo excesivo dificulta la recuperación de las herbáceas y disminuye la aparición de hongos pratícolas.<br><br>Al aumentar la altitud suele disminuir la temperatura, salvo situaciones de inversión térmica.<br><br>El carácter eurosiberiano se relaciona generalmente con zonas de montaña por encima de unos 1200 m.",
+      null,
+      "La relación entre altitud y temperatura está invertida: normalmente, al subir en altitud disminuye la temperatura y al descender aumenta, salvo situaciones como la inversión térmica.<br><br>El sobrepisoteo excesivo dificulta la recuperación de las herbáceas y disminuye la aparición de hongos pratícolas.<br><br>Las caras norte suelen ser más frescas; las sur, más cálidas.<br><br>El carácter eurosiberiano se relaciona generalmente con zonas de montaña por encima de unos 1200 m.",
+      "El carácter eurosiberiano se relaciona generalmente con zonas de montaña por encima de unos 1200 m; por debajo de esa cota predomina el carácter mediterráneo.<br><br>El sobrepisoteo excesivo dificulta la recuperación de las herbáceas y disminuye la aparición de hongos pratícolas.<br><br>Las caras norte suelen ser más frescas y las sur más cálidas.<br><br>Al aumentar la altitud suele disminuir la temperatura, salvo situaciones de inversión térmica."
+    ]
+  },
+  {
+    "pregunta": "En relación a las buenas prácticas de recolección:",
+    "respuestas": [
+      "En épocas de intenso frío los pinicolas (Boletus pinophilus), los níscalos (Lactarius deliciosus), y las capuchinas (Tricholoma portentosum), fructifican entre las acículas de los pinos por lo que es recomendable utilizar rastrillos para poderlos localizar.",
+      "Es recomendable pisotear y romper las setas tóxicas para evitar que otro recolector las coja por error y sufra una intoxicación.",
+      "Es aconsejable recolectar los ejemplares inmaduros porque suelen estar menos parasitados por larvas de insectos.",
+      "Se aconseja no recolectar los ejemplares inmaduros porque no han dispersado sus esporas con el objetivo de favorecer la sostenibilidad del recurso micológico. Además, no aportan el mismo valor nutricional y organoléptico que los ejemplares adultos."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "No se deben recolectar ejemplares inmaduros: todavía no han dispersado sus esporas y su recolección perjudica la sostenibilidad del recurso micológico. Además, no aportan el mismo valor nutricional y organoléptico que los ejemplares adultos.<br><br>No deben utilizarse rastrillos u otras herramientas que remuevan el suelo o la hojarasca para localizar setas.<br><br>Las setas tóxicas tampoco deben destruirse: forman parte del ecosistema y deben respetarse igual que las demás especies."
+    ],
+    "feedbackIncorrecto": [
+      "No se recomienda utilizar rastrillos para buscar setas entre las acículas: remover el suelo o la hojarasca altera el medio y puede dañar el recurso micológico.<br><br>Los ejemplares inmaduros deben dejarse sin recolectar para que puedan completar su desarrollo y dispersar esporas; además, no ofrecen el mismo valor nutricional y organoléptico que los adultos.<br><br>Las setas tóxicas no deben pisotearse ni destruirse: también forman parte del ecosistema.",
+      "Las setas tóxicas no deben pisotearse ni romperse. Que una especie no sea comestible para las personas no significa que carezca de función en el ecosistema.<br><br>Los ejemplares inmaduros deben dejarse sin recolectar para favorecer la dispersión de esporas y la sostenibilidad del recurso.<br><br>Tampoco deben emplearse rastrillos que remuevan el suelo o la hojarasca para localizar setas.",
+      "Precisamente se aconseja no recolectar ejemplares inmaduros: todavía no han dispersado sus esporas y, además, no tienen el mismo valor nutricional y organoléptico que los ejemplares adultos.<br><br>No deben emplearse rastrillos que remuevan el suelo o la hojarasca.<br><br>Las setas tóxicas tampoco deben destruirse; forman parte del ecosistema.",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación a las buenas prácticas en el medio:",
+    "respuestas": [
+      "Es recomendable dar gritos por el bosque o poner música a todo volumen para que los animales salvajes sepan en todo momento nuestra posición.",
+      "Es aconsejable no llevarse ni tocar crías de animales salvajes, ya que la mayoría de ellos si te los llevas no sobreviven en cautividad o los padres si se tocan generalmente las abandonan.",
+      "Una cosa que no tiene ninguna importancia es tirar la basura en el medio, ya que muchos residuos servirán de comida a animales salvajes.",
+      "Es interesante utilizar la madera disponible para hacer fuegos en zonas no habilitadas para ello y hacerse una bonita barbacoa después de una larga caminata por el monte."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "En el medio natural se debe minimizar la alteración de la fauna y del entorno. No se aconseja tocar ni llevarse crías de animales salvajes.<br><br>También deben evitarse los ruidos intensos, la música a gran volumen y las luces fuertes que puedan molestar a la fauna.<br><br>La basura debe retirarse del medio.<br><br>El fuego solo debe hacerse en lugares expresamente habilitados para ello."
+    ],
+    "feedbackIncorrecto": [
+      "Gritar o poner música a gran volumen no es una buena práctica: el ruido intenso altera y molesta a la fauna.<br><br>No se deben tocar ni llevarse crías de animales salvajes.<br><br>La basura debe retirarse del medio, no dejarse como supuesto alimento para los animales.<br><br>Tampoco se deben hacer fuegos fuera de las zonas habilitadas.",
+      null,
+      "La basura no debe abandonarse en el medio. Los residuos alteran el entorno y deben retirarse, no dejarse con la idea de que servirán de alimento a la fauna.<br><br>No se deben tocar ni llevarse crías de animales salvajes.<br><br>También deben evitarse ruidos intensos y fuegos fuera de las zonas habilitadas.",
+      "No se debe hacer fuego fuera de los lugares habilitados, aunque haya madera disponible.<br><br>No se deben tocar ni llevarse crías de animales salvajes.<br><br>También deben evitarse los ruidos intensos y hay que retirar la basura del medio."
+    ]
+  },
+  {
+    "pregunta": "En relación a las caídas y percances:",
+    "respuestas": [
+      "El monte es un medio liso que no presenta ningún riesgo para sufrir una caída o un percance.",
+      "El monte presenta infinidad de peligros físicos como rocas, piedras, barrancos, terraplenes, ramas, matorrales, turberas, cursos de agua.",
+      "En el monte se pueden producir infinidad de percances como caídas al suelo, torceduras de tobillos, heridas y quemaduras o incluso cortes accidentales con la navaja de setas.",
+      "La b y c son las respuestas correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "El monte presenta numerosos peligros físicos: rocas, piedras, barrancos, terraplenes, ramas, matorrales, turberas y cursos de agua.<br><br>Por ello pueden producirse caídas, torceduras de tobillo, heridas, quemaduras o cortes accidentales con la navaja.<br><br>Son correctas tanto la descripción de los peligros físicos como la de los posibles percances."
+    ],
+    "feedbackIncorrecto": [
+      "El terreno natural no es un medio liso ni exento de riesgos. Rocas, barrancos, ramas, matorrales, turberas o cursos de agua pueden provocar accidentes.<br><br>Entre los percances posibles están las caídas, torceduras de tobillo, heridas, quemaduras y cortes accidentales con la navaja.<br><br>Por eso son correctas conjuntamente las opciones b y c.",
+      "La afirmación es correcta, pero incompleta: el monte presenta peligros físicos como rocas, barrancos, ramas, matorrales, turberas o cursos de agua.<br><br>Esos peligros pueden traducirse en caídas, torceduras, heridas, quemaduras o cortes accidentales.<br><br>Por eso la respuesta más completa es que son correctas b y c.",
+      "La afirmación es correcta, pero incompleta: pueden producirse caídas, torceduras, heridas, quemaduras o cortes accidentales.<br><br>También es correcta la afirmación que enumera los peligros físicos del terreno, como rocas, barrancos, ramas, matorrales, turberas y cursos de agua.<br><br>Por eso la respuesta más completa es que son correctas b y c.",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación a los encuentros con animales:",
+    "respuestas": [
+      "En el caso de encontrarse con un toro bravo durante la recolección de setas lo más aconsejable es llamarle para hacerle un buen recorte.",
+      "En caso de encontrarte con crías de animales es un buen momento para aprovechar y cogerlos y hacerte fotos para las redes sociales con ellos.",
+      "En caso de encontrarte con animales domésticos o salvajes se recomienda mantener la distancia de seguridad e ir en grupo.",
+      "Los perros no suponen ningún peligro para nosotros, son nuestros fieles amigos."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "Ante animales domésticos o salvajes se recomienda mantener una distancia de seguridad e ir en grupo.<br><br>También conviene evitar acercarse a crías o a animales que estén alimentándose.<br><br>El bastón puede servir como elemento de protección durante la salida."
+    ],
+    "feedbackIncorrecto": [
+      "Acercarse a un toro para provocarlo o intentar hacerle un recorte aumenta innecesariamente el riesgo. Ante animales se debe mantener una distancia de seguridad.<br><br>También se aconseja ir en grupo y evitar acercarse a crías o animales que estén alimentándose.<br><br>El bastón puede utilizarse como elemento de protección.",
+      "No se deben coger crías ni acercarse a ellas para hacerse fotografías. La presencia de crías exige especial prudencia y distancia.<br><br>Ante animales domésticos o salvajes se recomienda mantener una distancia de seguridad e ir en grupo.<br><br>El bastón puede utilizarse como elemento de protección.",
+      null,
+      "Un perro puede suponer un riesgo, especialmente si protege ganado, territorio o crías; no debe darse por hecho que todos los perros son inofensivos.<br><br>Ante animales domésticos o salvajes se recomienda mantener una distancia de seguridad e ir en grupo.<br><br>También conviene evitar acercarse a crías o animales que estén alimentándose."
+    ]
+  },
+  {
+    "pregunta": "En relación a las picaduras de garrapatas:",
+    "respuestas": [
+      "Las garrapatas son el vector de numerosas enfermedades producidas por bacterias, hongos protozoos y virus.",
+      "Las garrapatas no se encuentran en pastos, ni zonas herbosas, ni arbustos ni árboles, ya que depositan sus huevos en el interior de las casas.",
+      "El hombre no es hospedador específico de ninguna especie de garrapata, pero puede ser hospedador accidental u ocasional de garrapatas de otros vertebrados.",
+      "La a y la c son las respuestas correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Las garrapatas pueden actuar como vectores de numerosas enfermedades.<br><br>Se encuentran en pastos, zonas herbosas, arbustos y árboles, desde donde pueden entrar en contacto con sus hospedadores.<br><br>El ser humano no es hospedador específico de ninguna especie de garrapata, pero puede actuar como hospedador accidental u ocasional de garrapatas de otros vertebrados.<br><br>Por eso son correctas las afirmaciones a y c."
+    ],
+    "feedbackIncorrecto": [
+      "La afirmación sobre su papel como vectores es correcta, pero no es la única: también es correcto que el ser humano puede ser hospedador accidental u ocasional de garrapatas de otros vertebrados.<br><br>Las garrapatas pueden encontrarse en pastos, zonas herbosas, arbustos y árboles.<br><br>Por eso la respuesta más completa reúne a y c.",
+      "Las garrapatas sí pueden encontrarse en pastos, zonas herbosas, arbustos y árboles; no se limitan al interior de las viviendas.<br><br>Además, pueden actuar como vectores de numerosas enfermedades.<br><br>El ser humano puede ser hospedador accidental u ocasional de garrapatas de otros vertebrados, por lo que son correctas a y c.",
+      "La afirmación es correcta, pero no es la única: el ser humano puede actuar como hospedador accidental u ocasional de garrapatas de otros vertebrados.<br><br>También es correcta la afirmación sobre su papel como vectores de numerosas enfermedades.<br><br>Las garrapatas pueden encontrarse en pastos, zonas herbosas, arbustos y árboles. Por eso la respuesta más completa reúne a y c.",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación a las picaduras de trombiculidos:",
+    "respuestas": [
+      "Los trombiculidos son arácnidos de la subclase de los ácaros, pertenecientes a la familia Trombiculidae, que se caracterizan por su gran tamaño (superior a 1 cm) y su color rojo.",
+      "Las larvas de trombiculidos se encuentran generalmente en invierno entre los meses de noviembre y febrero en el interior de grandes ciudades que se encuentren cercanas al mar.",
+      "Los trombiculidos producen la trombiculosis que generan cuadros de irritación con lesiones eritematosas (alergia) por casi todo el cuerpo que generan mucho picor y malestar.",
+      "Se recomienda que tras las picaduras de trombiculidos rascarse intensamente."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "La trombiculosis está causada por las larvas de trombicúlidos y produce cuadros de irritación con lesiones eritematosas, mucho picor y malestar.<br><br>Los trombicúlidos son ácaros rojos de menos de 1 mm; las larvas, que son las que pican, miden alrededor de 0,2 mm.<br><br>Las larvas aparecen generalmente desde finales de agosto hasta mediados de noviembre en pastos de zonas de montaña.<br><br>Tras las picaduras se debe evitar el rascado. El tratamiento contempla antihistamínicos y corticoides bajo prescripción médica."
+    ],
+    "feedbackIncorrecto": [
+      "El tamaño está mal: los trombicúlidos son ácaros diminutos, inferiores a 1 mm, y sus larvas miden alrededor de 0,2 mm.<br><br>Las larvas, que son las que pican, aparecen generalmente desde finales de agosto hasta mediados de noviembre en pastos de zonas de montaña.<br><br>La trombiculosis produce lesiones eritematosas, mucho picor y malestar.<br><br>Tras las picaduras se debe evitar el rascado; el tratamiento contempla antihistamínicos y corticoides bajo prescripción médica.",
+      "La época y el hábitat están mal: las larvas aparecen generalmente desde finales de agosto hasta mediados de noviembre y en pastos de zonas de montaña.<br><br>La trombiculosis está causada por las larvas de trombicúlidos y produce lesiones eritematosas, mucho picor y malestar. Estos ácaros son diminutos —menos de 1 mm; las larvas alrededor de 0,2 mm—.<br><br>Tras las picaduras se debe evitar el rascado. El tratamiento contempla antihistamínicos y corticoides bajo prescripción médica.",
+      null,
+      "Rascarse intensamente empeora la irritación y puede lesionar la piel; se recomienda precisamente evitar el rascado.<br><br>La trombiculosis produce lesiones eritematosas, mucho picor y malestar. El tratamiento contempla antihistamínicos y corticoides bajo prescripción médica.<br><br>Las larvas que pican miden alrededor de 0,2 mm y aparecen generalmente desde finales de agosto hasta mediados de noviembre en pastos de zonas de montaña."
+    ]
+  },
+  {
+    "pregunta": "En relación a las mordeduras de culebras:",
+    "respuestas": [
+      "En caso de mordedura de una culebra lo más importante es capturar a la culebra para poder determinar la especie.",
+      "En casos graves de mordeduras de culebras no es necesario ningún antídoto, ya que no se producen en ningún caso reacciones anafilácticas.",
+      "Por suerte, a diferencias de otros países en España no hay víboras.",
+      "Ninguna de las respuestas anteriores es correcta."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Ante una mordedura se debe permanecer en calma, descubrir la zona afectada e intentar identificar la especie si es posible, sin exponerse a capturarla.<br><br>Hay que llamar al 112 e indicar la localización.<br><br>Debe aplicarse la «regla del no»: no succionar, no cortar, no hacer torniquetes, no echar alcohol, no vendar, no tomar analgésicos y no beber mucha agua.<br><br>En casos graves puede ser necesario administrar antídoto, que puede provocar reacciones anafilácticas.<br><br>En España sí existen víboras, entre ellas Vipera latastei, Vipera aspis y Vipera seoanei."
+    ],
+    "feedbackIncorrecto": [
+      "No hay que exponerse a capturar la culebra. Se intenta identificar la especie si es posible, pero la prioridad es permanecer en calma, descubrir la zona afectada y llamar al 112 indicando la localización.<br><br>Debe seguirse la «regla del no»: no succionar, cortar, hacer torniquetes, echar alcohol, vendar, tomar analgésicos ni beber mucha agua.<br><br>En casos graves puede ser necesario un antídoto.",
+      "En los casos graves sí puede ser necesario administrar antídoto y este puede provocar reacciones anafilácticas.<br><br>La actuación inicial consiste en mantener la calma, descubrir la zona afectada, identificar la especie si es posible y llamar al 112.<br><br>No se debe succionar, cortar, hacer torniquetes, echar alcohol, vendar, tomar analgésicos ni beber mucha agua.",
+      "En España sí hay víboras; entre las citadas se encuentran Vipera latastei, Vipera aspis y Vipera seoanei.<br><br>Ante una mordedura hay que mantener la calma, descubrir la zona afectada, identificar la especie si es posible y llamar al 112.<br><br>En casos graves puede ser necesario administrar antídoto.",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación a las pérdidas y extravíos:",
+    "respuestas": [
+      "Para evitar las pérdidas de objetos personales se recomienda meter los objetos personales en una mochila y colgar las llaves y el móvil del cuello.",
+      "Para evitar la desorientación en el bosque se aconseja llevar un móvil con programa GPS o de geolocalización o un dispositivo GPS.",
+      "Los principales programas de geolocalización utilizados en el móvil son Wikiloc, OruxMaps GP, Google Maps y Mapas de España.",
+      "Todas las respuestas anteriores son correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Para reducir pérdidas de objetos personales conviene llevarlos guardados en una mochila y asegurar especialmente llaves y móvil.<br><br>Para evitar desorientarse se recomienda llevar un teléfono con GPS o geolocalización, o un dispositivo GPS.<br><br>Entre las aplicaciones de geolocalización citadas están Wikiloc, OruxMaps GP, Google Maps y Mapas de España.<br><br>Por tanto, las tres afirmaciones son correctas."
+    ],
+    "feedbackIncorrecto": [
+      "La medida es correcta, pero no es la única afirmación válida: guardar los objetos en una mochila y asegurar llaves y móvil ayuda a evitar pérdidas.<br><br>También es correcto utilizar móvil o dispositivo GPS para prevenir extravíos y emplear aplicaciones de geolocalización como Wikiloc, OruxMaps GP, Google Maps o Mapas de España.<br><br>Por eso la respuesta más completa es «Todas las respuestas anteriores son correctas».",
+      "La medida es correcta, pero no es la única afirmación válida: un móvil con GPS o geolocalización, o un dispositivo GPS, ayuda a prevenir la desorientación.<br><br>También son correctas las medidas para asegurar objetos personales y la relación de aplicaciones de geolocalización.<br><br>Por eso la respuesta más completa es «Todas las respuestas anteriores son correctas».",
+      "La afirmación es correcta, pero no es la única: Wikiloc, OruxMaps GP, Google Maps y Mapas de España se citan como herramientas de geolocalización.<br><br>También son correctas las recomendaciones de asegurar los objetos personales y llevar móvil o dispositivo GPS.<br><br>Por eso la respuesta más completa es «Todas las respuestas anteriores son correctas».",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación al botiquín de primeros auxilios y de medicamentos básicos:",
+    "respuestas": [
+      "En el botiquín de primeros auxilios es imprescindible llevar elementos para curar heridas (agua oxigenada, gasas esterilizadas, esparadrapo).",
+      "En el botiquín de primeros auxilios no es aconsejable portar antisépticos para desinfectar las heridas.",
+      "En el botiquín de medicamentos básicos no se aconseja llevar analgésicos ya que se pueden comprar en la farmacia más cercana en caso de que sea necesario.",
+      "La b y c son las respuestas correctas."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "Un botiquín de primeros auxilios debe incluir material para curar heridas, como agua oxigenada, gasas esterilizadas y esparadrapo.<br><br>También es aconsejable disponer de antisépticos para desinfectar heridas.<br><br>En el botiquín de medicamentos básicos pueden incluirse analgésicos."
+    ],
+    "feedbackIncorrecto": [
+      null,
+      "Los antisépticos sí son aconsejables en el botiquín porque permiten desinfectar las heridas.<br><br>También debe llevarse material para curarlas, como agua oxigenada, gasas esterilizadas y esparadrapo.<br><br>En el botiquín de medicamentos básicos pueden incluirse analgésicos.",
+      "Sí se aconseja disponer de analgésicos en el botiquín de medicamentos básicos; depender de encontrar una farmacia durante una salida al monte no sustituye a llevar un botiquín preparado.<br><br>También deben incluirse materiales para curar heridas y antisépticos para desinfectarlas.",
+      "Las opciones b y c son falsas: sí se aconseja llevar antisépticos para desinfectar heridas y analgésicos dentro del botiquín de medicamentos básicos.<br><br>La afirmación correcta es la que indica que deben llevarse elementos para curar heridas, como agua oxigenada, gasas esterilizadas y esparadrapo."
+    ]
+  },
+  {
+    "pregunta": "En relación a las normativas de recolección de setas silvestres:",
+    "respuestas": [
+      "En Extremadura hay un borrador de un decreto que regula la recolección de setas silvestres del año 2016 que todavía no ha sido aprobado.",
+      "En Andalucia la resolución de normativas de recolección de setas se aprueba de forma provincial cada año previo a la temporada de otoño.",
+      "El cupo de recolección de carácter episódico de setas silvestres en terrenos forestales en España es variable dependiendo de la comunidad autónoma o incluso en algunos casos de la provincia.",
+      "Todas las respuestas son correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "La regulación de la recolección no es uniforme en todo el territorio: puede depender de la comunidad autónoma e incluso de la provincia.<br><br>El cupo permitido para una recolección episódica también varía territorialmente.<br><br>En el cuestionario se consideran además correctas la situación indicada para Extremadura y la aprobación provincial anual señalada para Andalucía, por lo que la respuesta reúne las tres afirmaciones."
+    ],
+    "feedbackIncorrecto": [
+      "La afirmación se considera correcta, pero no es la única válida en esta pregunta.<br><br>La regulación de la recolección varía territorialmente; en Andalucía se contempla la resolución provincial previa a la temporada de otoño y los cupos de recolección episódica pueden cambiar según la comunidad autónoma o incluso la provincia.<br><br>Por eso la respuesta del cuestionario reúne las tres afirmaciones.",
+      "La afirmación se considera correcta, pero no es la única válida en esta pregunta.<br><br>Los cupos de recolección episódica no son iguales en toda España y la pregunta también recoge como correcta la situación indicada para Extremadura.<br><br>Por eso la respuesta del cuestionario reúne las tres afirmaciones.",
+      "La afirmación es correcta, pero incompleta: el cupo de recolección episódica varía según la comunidad autónoma y, en algunos casos, según la provincia.<br><br>En Extremadura se tramitó en 2016 el «Proyecto de Decreto por el que se regula la recolección de especies micológicas en montes de utilidad pública de Extremadura y se establecen obligaciones y recomendaciones para su recolección en el resto de terrenos forestales», que no llegó a aprobarse.<br><br>Distinguía una recolección extraordinaria —con fines divulgativos, educativos, docentes o científicos— y una ordinaria; dentro de esta última, una recolección recreativa sin ánimo de lucro y una intensiva sujeta a autorización.<br><br>En Andalucía la regulación se concreta mediante resoluciones provinciales que pueden cambiar cada temporada de otoño.<br><br>Por eso la respuesta más completa es «Todas las respuestas son correctas».",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación a la normativa de recolección de setas en la comunidad autónoma de Aragón:",
+    "respuestas": [
+      "El cupo de recolección de carácter episódico de setas silvestres en terrenos forestales en Aragón es de 3 Kg por persona y día.",
+      "Las setas silvestres procedentes de recolecciones episódicas en terrenos forestales de Aragón no son comercializables.",
+      "Para la recolección episódica de setas silvestres en terrenos forestales de Aragón no es necesario ningún permiso de recolección.",
+      "Todas las respuestas son correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "En Aragón, la recolección episódica en terrenos forestales tiene un cupo de 3 kg por persona y día.<br><br>Las setas obtenidas mediante este tipo de recolección no son comercializables.<br><br>Para la recolección episódica no se exige permiso de recolección.<br><br>Por tanto, las tres afirmaciones son correctas."
+    ],
+    "feedbackIncorrecto": [
+      "El dato de 3 kg por persona y día es correcto, pero no es la única afirmación válida.<br><br>Las setas procedentes de recolección episódica no son comercializables y para este tipo de recolección no se exige permiso.<br><br>Por eso la respuesta más completa es «Todas las respuestas son correctas».",
+      "La afirmación es correcta, pero incompleta: las setas procedentes de recolección episódica en terrenos forestales de Aragón no son comercializables.<br><br>También son correctos el cupo de 3 kg por persona y día y la ausencia de permiso para la recolección episódica.<br><br>Por eso la respuesta más completa es «Todas las respuestas son correctas».",
+      "La afirmación es correcta, pero incompleta: para la recolección episódica en terrenos forestales de Aragón no se exige permiso.<br><br>También son correctos el cupo de 3 kg por persona y día y que las setas obtenidas mediante recolección episódica no son comercializables.<br><br>Por eso la respuesta más completa es «Todas las respuestas son correctas».",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación a las condiciones de los permisos de recolección en acotados micológicos:",
+    "respuestas": [
+      "Es obligatorio mostrar el permiso de recolección y el documento acreditativo a las autoridades competentes y el personal de vigilancia.",
+      "El permiso de recolección puede ser usado por varias personas para recolectar setas en acotados micológicos en días diferentes.",
+      "El permiso de recolección no es obligatorio en acotados micológicos, ya que es algo voluntario para aportar un dinero al acotado.",
+      "Ninguna de las respuestas anteriores es correcta."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "En un acotado micológico el permiso de recolección es obligatorio y debe mostrarse, junto con el documento acreditativo, cuando lo soliciten las autoridades competentes o el personal de vigilancia.<br><br>El permiso es personal e intransferible: no puede compartirse entre varias personas."
+    ],
+    "feedbackIncorrecto": [
+      null,
+      "El permiso es personal e intransferible, por lo que no puede utilizarlo una persona distinta en otro día.<br><br>Además, en los acotados donde se exige permiso este es obligatorio y debe mostrarse junto con el documento acreditativo cuando lo requieran las autoridades o el personal de vigilancia.",
+      "El permiso no es una aportación voluntaria: en un acotado sujeto a permiso su obtención es obligatoria para recolectar.<br><br>Además, debe mostrarse junto con el documento acreditativo cuando lo soliciten las autoridades o el personal de vigilancia, y es personal e intransferible.",
+      "Sí hay una respuesta correcta: es obligatorio mostrar el permiso de recolección y el documento acreditativo cuando lo requieran las autoridades competentes o el personal de vigilancia.<br><br>El permiso es obligatorio, personal e intransferible."
+    ]
+  },
+  {
+    "pregunta": "En relación a la normativa de recolección de trufas:",
+    "respuestas": [
+      "Se permite la recolección de trufas por la noche.",
+      "Se permite la extracción de trufas con hoces, rastrillos y azadas.",
+      "Se permite la recolección episódica.",
+      "Ninguna de las anteriores respuestas es correcta."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "Las tres prácticas indicadas están prohibidas: no se permite recolectar trufas por la noche, utilizar hoces, rastrillos o azadas para extraerlas ni realizar recolección episódica.<br><br>La extracción autorizada se realiza con las condiciones específicas de la recolección trufera, incluida la localización mediante perros adiestrados y el uso de machete trufero, rellenando después los hoyos."
+    ],
+    "feedbackIncorrecto": [
+      "La recolección nocturna de trufas está prohibida.<br><br>La normativa tampoco permite la extracción con hoces, rastrillos o azadas ni la recolección episódica.<br><br>La recolección autorizada se realiza bajo condiciones específicas y los hoyos deben rellenarse después de la extracción.",
+      "No se permite extraer trufas con hoces, rastrillos o azadas; la herramienta específica es el machete trufero y los hoyos deben rellenarse después.<br><br>También están prohibidas la recolección nocturna y la recolección episódica.",
+      "La recolección episódica de trufas está prohibida.<br><br>Tampoco se permite recolectarlas de noche ni extraerlas con hoces, rastrillos o azadas.<br><br>La recolección autorizada está sometida a condiciones específicas.",
+      null
+    ]
+  }
+];
+let preguntas=[...preguntasOriginales],modoRevision=false,indice=0,aciertos=0,fallos=0,respondida=false,falladas=[];
+const $=id=>document.getElementById(id), questionEl=$('question'), answersEl=$('answers'), feedbackEl=$('feedback'), feedbackTitleEl=$('feedback-title'), feedbackTextEl=$('feedback-text'), nextBtn=$('next-btn'), restartBtn=$('restart-btn'), restartFinalBtn=$('restart-final-btn'), reviewBtn=$('review-btn'), counterEl=$('counter'), hitsEl=$('hits'), missesEl=$('misses'), progressBar=$('progress-bar'), quizCard=$('quiz-card'), resultCard=$('result-card'), finalScore=$('final-score'), finalMessage=$('final-message');
+function cargarPregunta(){respondida=false;const actual=preguntas[indice];counterEl.textContent=`${modoRevision?'Revisión':'Pregunta'} ${indice+1} de ${preguntas.length}`;questionEl.textContent=actual.pregunta;answersEl.innerHTML='';feedbackEl.classList.remove('show');nextBtn.classList.add('hidden');restartBtn.classList.remove('hidden');progressBar.style.width=`${(indice/preguntas.length)*100}%`;actual.respuestas.forEach((respuesta,i)=>{const btn=document.createElement('button');btn.className='answer';btn.innerHTML=`<span class="letter">${String.fromCharCode(97+i)})</span> ${respuesta}`;btn.addEventListener('click',()=>comprobarRespuesta(i,btn));answersEl.appendChild(btn);});}
+function comprobarRespuesta(elegida,boton){if(respondida)return;respondida=true;const actual=preguntas[indice],botones=[...document.querySelectorAll('.answer')];botones.forEach((btn,i)=>{btn.disabled=true;if(i===actual.correcta)btn.classList.add('correct');});const ok=elegida===actual.correcta;if(ok){aciertos++;feedbackTitleEl.textContent='¡Correcto!';feedbackTitleEl.className='ok';}else{fallos++;boton.classList.add('wrong');feedbackTitleEl.textContent='No es correcta';feedbackTitleEl.className='bad';if(!modoRevision)falladas.push(actual);}hitsEl.textContent=aciertos;missesEl.textContent=fallos;const textoFeedback=ok?actual.explicacion:[actual.feedbackIncorrecto[elegida]];feedbackTextEl.innerHTML=textoFeedback.map(linea=>`<p>${linea}</p>`).join('');feedbackEl.classList.add('show');nextBtn.classList.remove('hidden');nextBtn.textContent=indice===preguntas.length-1?'Ver resultado':'Siguiente pregunta';}
+function siguiente(){if(indice<preguntas.length-1){indice++;cargarPregunta();}else mostrarResultado();}
+function mostrarResultado(){progressBar.style.width='100%';quizCard.classList.add('hidden');resultCard.classList.remove('hidden');const pct=Math.round((aciertos/preguntas.length)*100);finalScore.textContent=`Has obtenido ${aciertos} aciertos y ${fallos} fallos (${pct}%).`;if(modoRevision){finalMessage.textContent=fallos===0?'Muy bien: has corregido todos los fallos de esta revisión.':'Puedes volver a revisar los fallos que queden.';reviewBtn.classList.toggle('hidden',fallos===0);}else{finalMessage.textContent=pct>=80?'Muy buen resultado.':pct>=50?'Buen avance. Revisa las preguntas falladas para afianzar conceptos.':'Toca repasar con calma. La revisión de fallos te ayudará a centrarte en los puntos débiles.';reviewBtn.classList.toggle('hidden',falladas.length===0);}}
+function reiniciarCompleto(){preguntas=[...preguntasOriginales];modoRevision=false;indice=0;aciertos=0;fallos=0;falladas=[];hitsEl.textContent='0';missesEl.textContent='0';quizCard.classList.remove('hidden');resultCard.classList.add('hidden');cargarPregunta();}
+function revisarFallos(){if(!falladas.length)return;preguntas=[...falladas];modoRevision=true;indice=0;aciertos=0;fallos=0;falladas=[];hitsEl.textContent='0';missesEl.textContent='0';quizCard.classList.remove('hidden');resultCard.classList.add('hidden');cargarPregunta();}
+nextBtn.addEventListener('click',siguiente);restartBtn.addEventListener('click',reiniciarCompleto);restartFinalBtn.addEventListener('click',reiniciarCompleto);reviewBtn.addEventListener('click',revisarFallos);cargarPregunta();
+</script>
+</body>
+</html>
