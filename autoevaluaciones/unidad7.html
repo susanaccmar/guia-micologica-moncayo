@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Autoevaluación Micología - Unidad 7 · Desarrollo rural, conservación y regulación</title>
+<style>
+:root{--bg:#f3f0e8;--card:#fffaf0;--primary:#6f4e37;--primary-dark:#4b3621;--accent:#b8860b;--ok:#1f7a3a;--bad:#b3261e;--text:#2f2a24;--muted:#6b6258;--border:#dfd2bc}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#fff8dc 0,var(--bg) 45%,#e7ddca 100%);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:28px 14px}.app{width:100%;max-width:900px}header{text-align:center;margin-bottom:22px}header h1{margin:0 0 8px;color:var(--primary-dark);font-size:clamp(1.8rem,4vw,2.6rem)}header p{margin:0;color:var(--muted);font-size:1rem}.card{background:rgba(255,250,240,.96);border:1px solid var(--border);border-radius:22px;padding:clamp(18px,4vw,34px);box-shadow:0 18px 50px rgba(61,43,31,.16)}.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px}.badge{background:#efe2c6;color:var(--primary-dark);padding:8px 12px;border-radius:999px;font-weight:700;font-size:.92rem}.score{display:flex;gap:8px;flex-wrap:wrap}.score span{padding:8px 12px;border-radius:999px;font-weight:700;background:#f5ead2;border:1px solid var(--border)}.question{font-size:clamp(1.1rem,2.5vw,1.35rem);line-height:1.45;font-weight:750;margin:0 0 18px;color:var(--primary-dark)}.answers{display:grid;gap:12px;margin-bottom:18px}button.answer{border:2px solid var(--border);background:#fffdf7;color:var(--text);padding:14px 16px;border-radius:16px;text-align:left;cursor:pointer;font-size:1rem;line-height:1.35;transition:transform .12s ease,border-color .12s ease,background .12s ease}button.answer:hover:not(:disabled){transform:translateY(-1px);border-color:var(--accent);background:#fff8e6}button.answer:disabled{cursor:default;opacity:.95}button.answer.correct{border-color:var(--ok);background:#eaf7ee}button.answer.wrong{border-color:var(--bad);background:#fdecea}.feedback{display:none;margin-top:18px;padding:18px;border-radius:18px;border:1px solid var(--border);background:#fff7e3}.feedback.show{display:block}.feedback h2{margin:0 0 12px;font-size:1.15rem}.feedback h2.ok{color:var(--ok)}.feedback h2.bad{color:var(--bad)}.feedback p{margin:0 0 9px;line-height:1.5}.feedback p:last-child{margin-bottom:0}.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;flex-wrap:wrap}.primary-btn,.secondary-btn{border:none;border-radius:999px;padding:12px 18px;font-weight:750;cursor:pointer;font-size:1rem}.primary-btn{background:var(--primary);color:white}.primary-btn:hover{background:var(--primary-dark)}.secondary-btn{background:#eadcc3;color:var(--primary-dark)}.progress{height:10px;background:#eadcc3;border-radius:999px;overflow:hidden;margin-bottom:18px}.progress>div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--primary));transition:width .25s ease}.result{text-align:center}.result h2{font-size:2rem;margin:0 0 12px;color:var(--primary-dark)}.result p{font-size:1.1rem;color:var(--muted)}.hidden{display:none}.letter{font-weight:800;color:var(--primary-dark);margin-right:6px}footer{text-align:center;color:var(--muted);margin-top:16px;font-size:.92rem}
+</style>
+</head>
+<body>
+<main class="app">
+<header><h1>Autoevaluación de Micología</h1><p>Unidad 7 · Desarrollo rural, conservación y regulación</p>
+<div style="margin:10px 0 0;">
+  <a href="../" style="color:#4b3621;margin:0 10px;text-decoration:none;font-weight:bold;">🏠 Inicio</a>
+  <a href="../entrenador/" style="color:#4b3621;margin:0 10px;text-decoration:none;font-weight:bold;">🍄 Entrenador</a>
+  <a href="./" style="color:#4b3621;margin:0 10px;text-decoration:none;font-weight:bold;">📚 Menú unidades</a>
+</div></header>
+<section class="card" id="quiz-card"><div class="topbar"><span class="badge" id="counter"></span><div class="score"><span>✅ Aciertos: <strong id="hits">0</strong></span><span>❌ Fallos: <strong id="misses">0</strong></span></div></div><div class="progress"><div id="progress-bar"></div></div><p class="question" id="question"></p><div class="answers" id="answers"></div><div class="feedback" id="feedback"><h2 id="feedback-title"></h2><div id="feedback-text"></div></div><div class="actions"><button class="secondary-btn hidden" id="restart-btn">Volver a empezar</button><button class="primary-btn hidden" id="next-btn">Siguiente pregunta</button></div></section>
+<section class="card result hidden" id="result-card"><h2>Resultado final</h2><p id="final-score"></p><p id="final-message"></p><div class="actions" style="justify-content:center"><button class="secondary-btn" id="restart-final-btn">Volver a empezar</button><button class="primary-btn hidden" id="review-btn">Revisar fallos</button></div></section>
+<footer>Curso de Orientador Micológico · Cuestionario interactivo</footer>
+</main>
+<script>
+const preguntasOriginales = [
+  {
+    "pregunta": "En relación a la importancia de los hongos en el desarrollo rural:",
+    "respuestas": [
+      "Los hongos no tienen prácticamente importancia en el desarrollo rural, ya que hay aprovechamientos como el maderero, el ganadero y el agrícola mucho más rentables.",
+      "Es muy fácil estimar la producción de hongos en un determinado entorno forestal ya que apenas influyen factores.",
+      "El aprovechamiento de hongos en zonas rurales incluye la venta y comercialización de setas silvestres comestibles, las actividades de micoturismo (jornadas micológicas o micogastronómicas), la venta de permisos de recolección en zonas reguladas y las actividades de silvicultura.",
+      "En el mundo rural hay numerosos estudios de productividad de setas comestibles en zonas rurales."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "Los hongos pueden generar ingresos rurales por varias vías: venta y comercialización de setas comestibles, micoturismo —jornadas micológicas o micogastronómicas—, venta de permisos en zonas reguladas y trabajos de silvicultura.<br><br>Se consideran productos forestales no madereros y pueden complementar aprovechamientos como el maderero, ganadero o agrícola, especialmente en zonas montañosas.<br><br>Su productividad es difícil de estimar porque depende de numerosos factores y todavía existen pocos estudios de productividad de setas comestibles en zonas rurales."
+    ],
+    "feedbackIncorrecto": [
+      "Los hongos sí pueden tener una importancia económica relevante en el desarrollo rural. Además de la venta de setas, generan actividad mediante micoturismo, permisos de recolección y trabajos de silvicultura.<br><br>Su aprovechamiento actúa como complemento de otros usos del monte, especialmente en zonas montañosas.",
+      "La productividad de hongos no es fácil de estimar: intervienen numerosos factores ambientales y forestales que condicionan la fructificación.<br><br>El aprovechamiento rural incluye venta de setas, micoturismo, permisos de recolección y actividades de silvicultura, y todavía existen pocos estudios de productividad de setas comestibles en zonas rurales.",
+      null,
+      "Precisamente uno de los problemas señalados es que existen pocos estudios de productividad de setas comestibles en zonas rurales.<br><br>Los hongos pueden aportar ingresos mediante comercialización, micoturismo, permisos de recolección y silvicultura, pero estimar su productividad es difícil porque intervienen numerosos factores."
+    ]
+  },
+  {
+    "pregunta": "En relación a la fundamentación básica de la silvicultura fúngica:",
+    "respuestas": [
+      "Las cortas de regeneración son tratamientos silvícolas que consisten en la eliminación parcial o total de la masa forestal para favorecer el desarrollo de arbolado de forma natural o artificial.",
+      "Las principales cortas de mejora son las podas y desbroces.",
+      "Las principales formas de la eliminación de matorrales son las claras y los clareos.",
+      "En las cortas de regeneración se consideran practicas recomendadas el corte a hecho o a matarrasa, el labrado posterior y destoconado."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "Las cortas de regeneración o renovación eliminan parcial o totalmente la masa forestal para favorecer el desarrollo del arbolado, de forma natural o artificial.<br><br>Como prácticas recomendadas se plantean los aclareos sucesivos uniformes, dejando árboles padre, y los aclareos por bosquetes o fajas.<br><br>La corta a hecho o matarrasa, el labrado posterior y el destoconado mecánico se consideran perjudiciales.<br><br>Clareos y claras son cortas de mejora; las podas y desbroces pertenecen a otro grupo de tratamientos."
+    ],
+    "feedbackIncorrecto": [
+      null,
+      "Las principales cortas de mejora son los clareos y las claras, no las podas y los desbroces.<br><br>Las cortas de regeneración eliminan parcial o totalmente la masa forestal para favorecer la renovación del arbolado. Se recomiendan aclareos sucesivos que conserven árboles padre o bosquetes.",
+      "Claras y clareos son cortas de mejora de la masa arbolada; no son formas de eliminación del matorral.<br><br>El matorral se elimina mediante desbroces o quemas. En las cortas de regeneración se favorece la renovación del arbolado mediante eliminaciones parciales o totales de la masa.",
+      "Las cortas de regeneración o renovación eliminan parcial o totalmente la masa forestal para favorecer el desarrollo del arbolado, de forma natural o artificial.<br><br>Como prácticas recomendadas se plantean los aclareos sucesivos uniformes, realizando cortas parciales y dejando árboles padre, y los aclareos sucesivos por bosquetes o fajas, en los que la corta se realiza parcialmente conservando grupos de árboles.<br><br>La corta a hecho o matarrasa consiste en eliminar de una vez la totalidad o prácticamente la totalidad del arbolado de una superficie. Junto con el labrado posterior y el destoconado mecánico, se considera una práctica perjudicial dentro de las cortas de regeneración.<br><br>Los clareos y las claras son cortas de mejora: se eliminan determinados árboles para dejar más espacio y favorecer el crecimiento de los que permanecen. El clareo corresponde a las primeras cortas de árboles juveniles, sin obtención de madera comercial, mientras que las claras son cortas posteriores en las que ya se obtiene madera potencialmente comercializable.<br><br>Las podas y los desbroces no son cortas de mejora. La poda consiste en cortar ramas de los árboles, mientras que el desbroce elimina el matorral de forma mecánica o manual. Junto con las quemas, se utilizan como tratamientos silvícolas para reducir la carga de combustible y favorecer la recolección de hongos."
+    ]
+  },
+  {
+    "pregunta": "En relación a la fundamentación básica de la silvicultura fúngica:",
+    "respuestas": [
+      "La quema consiste en la eliminación del matorral mediante una quema controlada con un patrón de ignición en determinadas condiciones ambientales (otoño o invierno) para favorecer la recolección de setas y la regeneración del matorral senescente.",
+      "En las quemas es necesario cumplir las directrices vigentes de legislación de cada Comunidad Autónoma y una prescripción (quema prescrita) o autorización administrativa (quema controlada) tras enviar un documento de planificación de la quema.",
+      "En la comunidad autónoma de Aragón las quemas están legisladas por el Orden de 20 de febrero de 2015 que establece como época de peligro de incendios el periodo comprendido",
+      "Todas las respuestas anteriores son correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "La quema elimina matorral mediante fuego controlado y un patrón de ignición, normalmente en otoño o invierno, para favorecer la recolección de setas y regenerar matorral senescente.<br><br>Debe ajustarse a la normativa autonómica y contar con prescripción o autorización administrativa según el tipo de quema, tras presentar su planificación.<br><br>En Aragón se cita la Orden de 20 de febrero de 2015: establece como época de peligro de incendios del 1 de abril al 15 de octubre y exige autorización administrativa para las quemas, fijando condiciones y horarios."
+    ],
+    "feedbackIncorrecto": [
+      "La definición de quema es correcta, pero no agota la pregunta: consiste en eliminar matorral mediante una quema controlada, con patrón de ignición y en determinadas condiciones ambientales.<br><br>También son correctas las exigencias administrativas y la referencia normativa de Aragón, por lo que la opción que reúne las tres afirmaciones es la más completa.",
+      "Esta afirmación es correcta, pero incompleta: las quemas deben cumplir la normativa autonómica y requieren prescripción o autorización administrativa según corresponda, previa planificación.<br><br>También son correctas la definición de la quema como tratamiento del matorral y la regulación indicada para Aragón.",
+      "La referencia de Aragón es correcta, pero es solo una parte: se cita la Orden de 20 de febrero de 2015, con época de peligro de incendios entre el 1 de abril y el 15 de octubre y autorización administrativa para las quemas.<br><br>La definición del tratamiento y la necesidad general de ajustarse a la normativa y planificación también son correctas.",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación a los terrenos acotados y parques micológicos:",
+    "respuestas": [
+      "Los Parques Micológicos son un conjunto de terrenos acotados de setas de un ámbito geográfico determinado destinados a servicios y productos micológicos destinados al recolector de setas para asegurar un aprovechamiento micológico sostenible.",
+      "En Espala solo hay parques micológicos en Castilla y León, el resto de comunidades autónomas están muy retrasadas en este sentido.",
+      "Los terrenos acotados son montes de propiedad pública o privada que presentan regulado el aprovechamiento micológico que se encuentran bien señalizados y han sido declarados como tal en una legislación internacional.",
+      "Todas las respuestas son correctas."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "Un parque micológico agrupa terrenos acotados de un ámbito geográfico determinado y ofrece servicios y productos dirigidos al recolector para favorecer un aprovechamiento micológico sostenible.<br><br>Los acotados pueden ser montes públicos o privados con el aprovechamiento regulado y debidamente señalizados.<br><br>No son exclusivos de Castilla y León: existen parques y acotados en distintas comunidades autónomas."
+    ],
+    "feedbackIncorrecto": [
+      null,
+      "Los parques micológicos no existen únicamente en Castilla y León. Se recogen ejemplos en varias comunidades, entre ellos parques en Aragón y Navarra.<br><br>Un parque micológico reúne terrenos acotados y servicios destinados a ordenar el aprovechamiento y hacerlo sostenible.",
+      "La declaración de un terreno acotado no depende de una legislación internacional. Se trata de montes públicos o privados con aprovechamiento micológico regulado, señalizados y declarados mediante la regulación correspondiente, como una ordenanza municipal publicada en el BOP.<br><br>Los parques micológicos agrupan varios terrenos acotados de un ámbito geográfico determinado.",
+      "No son correctas todas las opciones: es falso que los parques micológicos solo existan en Castilla y León y también es incorrecta la referencia a una declaración mediante legislación internacional.<br><br>La definición correcta es la de parque micológico como conjunto de terrenos acotados con servicios y productos para un aprovechamiento sostenible."
+    ]
+  },
+  {
+    "pregunta": "En relación a los pasos a seguir en la creación de un acotado micológico:",
+    "respuestas": [
+      "En la creación de un acotado micológico se debe publicar inicialmente una Ordenanza fiscal municipal debidamente en el Boletín Oficial de la Provincia (BOP).",
+      "En la creación de un acotado micológico no es necesario la emisión por parte del Gobierno de la Comunidad Autonómica de la licencia de aprovechamiento y de disfrute.",
+      "En la creación de un acotado micológico no es necesario la señalización del acotado mediante placas homologadas.",
+      "La a y la c son las respuestas correctas."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "En montes de propiedad pública, la creación de un acotado incluye una ordenanza fiscal municipal publicada en el Boletín Oficial de la Provincia.<br><br>El proceso contempla además la enajenación de los terrenos a acotar, adjudicación del aprovechamiento, emisión autonómica de la licencia de aprovechamiento y disfrute, pago de tasas y fondos de mejora y señalización con placas homologadas."
+    ],
+    "feedbackIncorrecto": [
+      null,
+      "La licencia sí forma parte del procedimiento: debe producirse la emisión por el Gobierno autonómico de la licencia de aprovechamiento y de disfrute.<br><br>Antes se publica la ordenanza fiscal municipal en el BOP y el proceso termina incluyendo el pago correspondiente y la señalización homologada del acotado.",
+      "La señalización sí es necesaria: el acotado debe señalizarse mediante placas homologadas.<br><br>La creación comienza con una ordenanza fiscal municipal debidamente publicada en el BOP e incluye también la licencia autonómica de aprovechamiento y disfrute.",
+      "La opción c es falsa porque la señalización mediante placas homologadas sí forma parte de la creación del acotado; por tanto, no pueden ser correctas conjuntamente a y c.<br><br>La ordenanza fiscal municipal publicada en el BOP sí constituye uno de los primeros pasos del procedimiento."
+    ]
+  },
+  {
+    "pregunta": "En relación a los parques nacionales:",
+    "respuestas": [
+      "En los parques nacionales está generalmente prohibido la recolección de setas y de cualquier otro elemento natural, salvo autorización especial para estudios científicos o en aquellas zonas de los parques que se haya permitido el aprovechamiento micológico.",
+      "En España hay 16 parques nacionales, encontrándose únicamente en Aragón el Parque Nacional de Ordesa y Monte Perdido.",
+      "En todos los parques nacionales está permitida la recolección de setas de forma episódica.",
+      "La a y la b son las respuestas correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "En los parques nacionales la regla general es la prohibición de recolectar setas y otros elementos naturales. Puede haber excepciones mediante autorización científica o en zonas donde expresamente se haya permitido y regulado el aprovechamiento micológico.<br><br>España cuenta con 16 parques nacionales y en Aragón se encuentra el Parque Nacional de Ordesa y Monte Perdido.<br><br>Por eso son correctas conjuntamente las afirmaciones a y b."
+    ],
+    "feedbackIncorrecto": [
+      "La afirmación es correcta, pero no es la única: la recolección está generalmente prohibida salvo autorización científica o zonas expresamente reguladas.<br><br>También es correcto que España cuenta con 16 parques nacionales y que en Aragón se encuentra Ordesa y Monte Perdido; por eso la respuesta más completa reúne a y b.",
+      "El dato es correcto, pero incompleto: España cuenta con 16 parques nacionales y en Aragón se encuentra Ordesa y Monte Perdido.<br><br>También es correcta la regla general de prohibición de recolectar elementos naturales, con las excepciones expresamente autorizadas o reguladas.",
+      "No está permitida de forma general la recolección episódica en todos los parques nacionales. La regla general es la prohibición de recolectar setas y otros elementos naturales.<br><br>Solo se contemplan excepciones por autorización científica o en zonas donde se haya permitido expresamente el aprovechamiento micológico.",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación a los espacios naturales protegidos:",
+    "respuestas": [
+      "La recolección de setas en espacios naturales protegidos como parques naturales, monumentos naturales, reservas naturales y paisajes protegidos está regulada de forma específica según el plan de protección de cada espacio.",
+      "En las microreservas de hongos o reservas micológicas no está prohibida el acceso y la recolección de setas al público.",
+      "La recolección de setas en espacios naturales protegidos como parques naturales, monumentos naturales, reservas naturales y paisajes protegidos no está regulada de forma específica, permitiéndose la recolección episódica y comercial.",
+      "Ninguna de las respuestas anteriores es correcta."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "La recolección en parques naturales, monumentos naturales, reservas naturales y paisajes protegidos puede estar sometida a regulaciones o prohibiciones específicas que deben consultarse en el plan de protección de cada espacio.<br><br>Las reservas micológicas o microrreservas de hongos tienen un régimen mucho más restrictivo: se prohíben el acceso y la recolección al público, salvo fines científicos o de gestión y determinados accesos necesarios."
+    ],
+    "feedbackIncorrecto": [
+      null,
+      "En las reservas micológicas o microrreservas de hongos sí se prohíben el acceso y la recolección al público, salvo fines científicos o de gestión y accesos necesarios de salvamento, policía o vigilancia ambiental.<br><br>En otros espacios naturales protegidos hay que consultar la regulación específica del correspondiente plan de protección.",
+      "La recolección en espacios naturales protegidos sí puede estar regulada específicamente e incluso prohibida; no existe una autorización general para recolectar de forma episódica o comercial.<br><br>La regulación concreta debe consultarse en el plan de protección de cada espacio.",
+      "Sí existe una afirmación correcta: la recolección en parques naturales, monumentos naturales, reservas naturales y paisajes protegidos se somete a la regulación específica del espacio.<br><br>Las reservas micológicas presentan además restricciones especialmente fuertes al acceso y a la recolección pública."
+    ]
+  },
+  {
+    "pregunta": "En relación a las zonas de especial protección:",
+    "respuestas": [
+      "La recolección de setas se puede realizar en zonas de especial protección como las zonas de especial protección de las aves (ZEPA), zonas de especial conservación (ZEC), humedales RAMSAR siempre que el aprovechamiento micológico sea compatible con la conservación en terrenos con un plan de aprovechamiento regulado y no haya ninguna legislación que lo prohíba.",
+      "En las microreservas de flora la recolección de setas está prohibida o fuertemente restringida.",
+      "La a y b son las respuestas correctas.",
+      "Ninguna de las respuestas anteriores es correcta."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "En ZEPA, ZEC y humedales RAMSAR puede realizarse recolección de setas cuando sea compatible con la conservación, exista un aprovechamiento regulado y ninguna norma lo prohíba.<br><br>Las microrreservas de flora tienen un régimen diferente: la recolección de setas está prohibida o fuertemente restringida.<br><br>Por tanto, son correctas conjuntamente a y b."
+    ],
+    "feedbackIncorrecto": [
+      "La afirmación sobre ZEPA, ZEC y humedales RAMSAR es correcta, pero no es la única.<br><br>En las microrreservas de flora la recolección de setas está prohibida o fuertemente restringida; por eso la respuesta completa reúne a y b.",
+      "La afirmación sobre las microrreservas de flora es correcta, pero incompleta: la recolección está prohibida o fuertemente restringida.<br><br>También puede haber recolección compatible con la conservación en ZEPA, ZEC y humedales RAMSAR cuando exista regulación del aprovechamiento y ninguna norma la prohíba.",
+      null,
+      "Sí son correctas las dos primeras afirmaciones.<br><br>Las zonas ZEPA, ZEC y RAMSAR pueden admitir aprovechamiento micológico compatible y regulado, mientras que las microrreservas de flora prohíben o restringen fuertemente la recolección de setas."
+    ]
+  },
+  {
+    "pregunta": "En relación a la ley 42/2007 de 13 de diciembre, del Patrimonio y de la Biodiversidad:",
+    "respuestas": [
+      "La Ley 42/2007 de 13 de diciembre, del Patrimonio Natural y de la Biodiversidad establece el régimen jurídico básico de la conservación, uso sostenible, mejora y restauración del Patrimonio Natural y de la Biodiversidad.",
+      "Los principales objetivos de la Ley 42/2007 de 13 de diciembre, del Patrimonio Natural y de la Biodiversidad son la conservación de la diversidad genética, la conservación y la protección de las especies y la conservación de los ecosistemas naturales.",
+      "La a y b son respuestas correctas.",
+      "Ninguna de las respuestas anteriores es correcta."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "La Ley 42/2007 establece el régimen jurídico básico para la conservación, uso sostenible, mejora y restauración del Patrimonio Natural y de la Biodiversidad.<br><br>Entre sus objetivos se encuentran la conservación de la diversidad genética, la conservación y protección de las especies y la conservación de los ecosistemas naturales.<br><br>Por ello son correctas conjuntamente a y b."
+    ],
+    "feedbackIncorrecto": [
+      "La definición de la Ley 42/2007 es correcta, pero no es la única afirmación válida.<br><br>También son objetivos la conservación de la diversidad genética, de las especies y de los ecosistemas naturales; por eso la respuesta completa reúne a y b.",
+      "Los objetivos indicados son correctos, pero falta la otra afirmación válida.<br><br>La Ley 42/2007 establece el régimen jurídico básico de conservación, uso sostenible, mejora y restauración del Patrimonio Natural y de la Biodiversidad; por eso son correctas a y b.",
+      null,
+      "Sí hay dos afirmaciones correctas: la ley establece el régimen jurídico básico de conservación y uso sostenible del patrimonio natural y, entre sus objetivos, incluye conservar diversidad genética, especies y ecosistemas.<br><br>Por eso la respuesta correcta reúne a y b."
+    ]
+  },
+  {
+    "pregunta": "En relación a la Ley de Conservación de los Espacios Naturales y de la Flora y Fauna Silvestre (1989):",
+    "respuestas": [
+      "La ley de Conservación de los Espacios Naturales y de la Flora y Fauna Silvestre (1989) establece el régimen jurídico básico para la conservación de la flora, fauna y funga en los espacios naturales.",
+      "La ley de Conservación de los Espacios Naturales y de la Flora y Fauna Silvestre (1989) no cataloga las especies amenazadas de fauna y flora en categorías.",
+      "La ley de Conservación de los Espacios Naturales y de la Flora y Fauna Silvestre (1989) no tiene en cuenta los hongos para su conservación y protección.",
+      "Ninguna de las respuestas anteriores es correcta."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "La Ley de Conservación de los Espacios Naturales y de la Flora y Fauna Silvestre de 1989 establecía el régimen jurídico básico para la conservación de flora y fauna, pero no tenía en cuenta los hongos para su conservación y protección.<br><br>Además, sí catalogaba las especies amenazadas de flora y fauna en categorías: en peligro de extinción, sensibles a la alteración de su hábitat, vulnerables y de interés especial.<br><br>Posteriormente fue derogada y sustituida por la Ley 42/2007."
+    ],
+    "feedbackIncorrecto": [
+      "La ley de 1989 no incluía la funga en ese régimen de conservación: se refería a flora y fauna y no tenía en cuenta los hongos para su protección.<br><br>Sí establecía categorías para especies amenazadas de flora y fauna.<br><br>Posteriormente fue sustituida por la Ley 42/2007.",
+      null,
+      "Es cierto que la ley de 1989 no tenía en cuenta los hongos, pero esa no es la respuesta marcada como falsa en la pregunta: precisamente esa exclusión es una característica de la norma.<br><br>Además, la ley sí catalogaba especies amenazadas de flora y fauna en categorías, por lo que la afirmación correcta es que no las dejaba sin clasificar.",
+      "Sí hay una afirmación correcta: la ley de 1989 catalogaba las especies amenazadas de flora y fauna en distintas categorías.<br><br>No incluía a los hongos en su sistema de conservación y protección y posteriormente fue sustituida por la Ley 42/2007."
+    ]
+  },
+  {
+    "pregunta": "En relación a las listas rojas de hongos:",
+    "respuestas": [
+      "Las listas rojas de hongos tienen valor informativo y legislativo.",
+      "Las listas rojas de hongos son el conjunto de hongos cuya existencia o supervivencia está comprometida por las actividades humanas o por otro tipo de amenazas.",
+      "Las especies de hongos que aparecen en las listas rojas están protegidas de forma legislativa.",
+      "Los principales criterios de selección de las especies para estar catalogadas en las listas rojas son especies muy abundantes que se encuentren en un número elevado de lugares, especies que hayan empezado a aumentar su población en los últimos años y especies de frecuencia variable ligadas a biotopos no amenazados."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "Una lista roja de hongos reúne especies cuya existencia o supervivencia está comprometida por actividades humanas u otras amenazas.<br><br>Su función es informativa, no legislativa: sirve para comunicar el estado de conservación, implicar a responsables de conservación y orientar posibles medidas de protección.<br><br>Entre los criterios de selección figuran la rareza y distribución restringida, el descenso importante de poblaciones y la dependencia de biotopos fuertemente amenazados."
+    ],
+    "feedbackIncorrecto": [
+      "Las listas rojas tienen valor informativo, pero no valor legislativo por sí mismas.<br><br>Sirven para identificar y comunicar especies amenazadas y pueden orientar futuras medidas de protección, pero aparecer en una lista roja no equivale automáticamente a estar protegido por una norma.",
+      null,
+      "Aparecer en una lista roja no significa quedar automáticamente protegido por ley. Las listas rojas tienen valor informativo, no legislativo.<br><br>La protección legal requiere una norma específica; la lista roja identifica especies cuya supervivencia está comprometida y ayuda a orientar la conservación.",
+      "Los criterios están formulados al revés: se atiende a especies muy raras y restringidas, especies que han empezado a escasear y especies ligadas a biotopos fuertemente amenazados.<br><br>Una lista roja informa sobre especies cuya supervivencia está comprometida, pero no constituye por sí misma una norma de protección."
+    ]
+  },
+  {
+    "pregunta": "En relación a la Iniciativa de Lista Roja Global de Hongos (The Global Fungal Red List Iniciative):",
+    "respuestas": [
+      "En la Iniciativa de Lista Roja Global de Hongos solo pueden participar micólogos expertos para proponer especies amenazadas.",
+      "La Iniciativa de Lista Roja Global de Hongos es de acceso libre y de participación ciudadana.",
+      "Las especies presentes en la Iniciativa de Lista Roja Global de Hongos tienen prohibida su recolección en todos los países del mundo, conllevando su recolección sanciones bastante graves.",
+      "La a y la c son las respuestas correctas."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "La Iniciativa de Lista Roja Global de Hongos es de acceso libre y permite la participación ciudadana en la propuesta y evaluación de especies.<br><br>La inclusión de una especie en una lista roja informa sobre su estado de conservación, pero no implica por sí sola una prohibición legal mundial de recolección.<br><br>La evaluación no está reservada exclusivamente a micólogos expertos."
+    ],
+    "feedbackIncorrecto": [
+      "La participación no está limitada exclusivamente a micólogos expertos. La iniciativa es de acceso libre y contempla participación ciudadana.<br><br>Las propuestas se utilizan para evaluar el estado de conservación de los hongos; la lista resultante tiene finalidad de conservación e información, no crea por sí sola una prohibición mundial de recolección.",
+      null,
+      "La inclusión en la Lista Roja Global no significa que la recolección quede prohibida en todos los países ni que genere automáticamente sanciones.<br><br>Una lista roja evalúa el riesgo de conservación; la protección jurídica depende de la legislación aplicable en cada territorio.",
+      "Ni a ni c son correctas: la iniciativa no está reservada únicamente a expertos y aparecer en ella no establece una prohibición mundial automática de recolección.<br><br>La característica correcta es su acceso libre y la posibilidad de participación ciudadana."
+    ]
+  },
+  {
+    "pregunta": "En relación a las listas rojas europeas:",
+    "respuestas": [
+      "En el European Council for Conservation of Fungi (ECCF) solamente se establecen 10 especies de hongos amenazados.",
+      "En la II Reunión del Consejo Europeo para la Conservación de los Hongos celebrada en Vilm (Alemania) (1992) solamente se establecen 10 especies de hongos amenazados.",
+      "No se ha establecido nunca una lista roja de especies de hongos a nivel europeo.",
+      "Ninguna de las respuestas anteriores es correcta."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "En la II Reunión del Consejo Europeo para la Conservación de los Hongos celebrada en Vilm en 1992 se estableció una lista de 10 especies amenazadas.<br><br>Posteriormente, el European Council for Conservation of Fungi manejó una propuesta más amplia de 33 especies amenazadas.<br><br>Por tanto, el número 10 corresponde a la reunión de Vilm, no al conjunto posterior del ECCF."
+    ],
+    "feedbackIncorrecto": [
+      "El ECCF no quedó limitado a 10 especies: posteriormente aparece una lista de 33 hongos amenazados.<br><br>Las 10 especies corresponden a la II Reunión del Consejo Europeo para la Conservación de los Hongos celebrada en Vilm en 1992.",
+      null,
+      "Sí se han elaborado propuestas y listas rojas de hongos a escala europea.<br><br>En Vilm, en 1992, se estableció una lista de 10 especies amenazadas y posteriormente el ECCF recogió una lista de 33.",
+      "Sí existe una respuesta correcta: la reunión de Vilm de 1992 estableció una lista de 10 especies de hongos amenazadas.<br><br>No debe confundirse con la lista posterior del ECCF, que reúne 33 especies."
+    ]
+  },
+  {
+    "pregunta": "En relación a la propuesta de Lista Roja de Hongos a proteger en la Península Ibérica:",
+    "respuestas": [
+      "En la lista roja de hongos a proteger en la Península Ibérica se encuentran catalogadas 100 especies amenazadas.",
+      "La lista roja de hongos a proteger en la Península Ibérica es una propuesta definitiva, que tiene valor legislativo.",
+      "La lista roja de hongos a proteger en la Península Ibérica se estableció en el año 2010 en una reunión de grupo de micólogos ibéricos en Madrid.",
+      "Los principales criterios de selección de las especies de la lista roja de hongos a proteger en la Península Ibérica fueron especies comunes, pero con alarmante reducción de sus poblaciones, especies con distribución restrictiva, especies con poblaciones pequeñas y en reducción y especies con poblaciones muy pequeñas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "La propuesta de Lista Roja de Hongos a proteger en la Península Ibérica reúne 67 especies y es una propuesta orientativa, sin valor normativo.<br><br>Fue creada en 2006 en Braganza por un grupo hispano-luso a partir de un borrador de 365 especies.<br><br>Sus criterios incluyen especies comunes con reducción alarmante de poblaciones, distribución restringida, poblaciones pequeñas y en reducción y poblaciones muy pequeñas."
+    ],
+    "feedbackIncorrecto": [
+      "La propuesta no contiene 100 especies: reúne 67.<br><br>Es una propuesta orientativa sin valor normativo, creada en 2006 en Braganza por un grupo hispano-luso a partir de un borrador mucho más amplio.",
+      "No es una propuesta definitiva ni tiene valor legislativo. Su carácter es orientativo.<br><br>Reúne 67 especies y utiliza criterios relacionados con reducción de poblaciones, distribución restringida y tamaños poblacionales pequeños.",
+      "No se estableció en Madrid en 2010. La propuesta se creó en 2006 en Braganza por un grupo hispano-luso, a partir de un borrador de 365 especies.<br><br>El resultado es una propuesta orientativa de 67 especies, sin valor normativo.",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación al borrador de lista roja de hongos de Aragón:",
+    "respuestas": [
+      "El borrador de la lista roja de hongos de Aragón es una propuesta informativa, sin valor legislativo.",
+      "El borrador de la lista roja de hongos de Aragón solamente incluye especies de hongos epigeos con diámetro mayor de 2 cm, que se puedan identificar de forma segura con la macroscopía y que no presenten problemas taxonómicos.",
+      "Lariciformis officinalis se encuentra catalogado como extinto a nivel regional en el borrador de la lista roja de hongos de Aragón porque se conserva una exicatta de una antigua recolecta procedente de Teruel en el Herbario del Real Jardín Botánico de Madrid, que no se ha vuelto a ver la especie desde 1917.",
+      "Todas las respuestas son correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "El borrador de Lista Roja de Hongos de Aragón es una propuesta informativa sin valor legislativo.<br><br>Incluye hongos epigeos de más de 2 cm que puedan identificarse de forma segura por macroscopía y no presenten conflictos nomenclaturales o taxonómicos, además de criterios de distribución y conservación.<br><br>Lariciformis officinalis se considera extinto a nivel regional porque existe material de herbario de una antigua recolección de Teruel y no se ha vuelto a localizar desde 1917.<br><br>Por tanto, las tres afirmaciones son correctas."
+    ],
+    "feedbackIncorrecto": [
+      "La afirmación es correcta, pero no es la única: el borrador aragonés es informativo y carece de valor legislativo.<br><br>También son correctos los criterios de inclusión indicados y el caso de Lariciformis officinalis, por lo que la respuesta completa es «Todas las respuestas son correctas».",
+      "La afirmación recoge criterios utilizados en el borrador, pero no es la única correcta: se seleccionan especies epigeas mayores de 2 cm, identificables macroscópicamente y sin conflictos taxonómicos.<br><br>El borrador es informativo, sin valor legislativo, y también se incluye el caso de Lariciformis officinalis como extinto regionalmente.",
+      "El caso de Lariciformis officinalis es correcto: se conserva material de una antigua recolección turolense y no se ha vuelto a localizar desde 1917, por lo que se considera extinto a nivel regional.<br><br>También son correctos el carácter informativo del borrador y sus criterios de selección; por eso la respuesta completa reúne las tres afirmaciones.",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación al Atlas y Libro Rojo de los Hongos de la Península Ibérica:",
+    "respuestas": [
+      "El Atlas y Libro Rojo de los Hongos de la Península Ibérica ha sido creado por la Sociedad Ibérica de Micología (S.I.M.).",
+      "El Atlas y Libro Rojo de los Hongos de la Península Ibérica recoge solamente las mismas especies que la Propuesta de Lista Roja de Hongos a proteger en la Península Ibérica.",
+      "El Atlas y Libro Rojo de los Hongos de la Península Ibérica recoge algunas especies que no aparecen en la Propuesta de Lista Roja de Hongos a proteger en la Península Ibérica.",
+      "La a y la c son las respuestas correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "El Atlas y Libro Rojo de los Hongos Amenazados de España y Portugal fue creado en 2026 por la Sociedad Ibérica de Micología.<br><br>No se limita a reproducir las especies de la propuesta ibérica anterior: incorpora también especies que no aparecían en aquella lista.<br><br>Por ello son correctas conjuntamente a y c."
+    ],
+    "feedbackIncorrecto": [
+      "La creación por la Sociedad Ibérica de Micología es correcta, pero no es la única afirmación válida.<br><br>El Atlas y Libro Rojo incluye también especies que no aparecían en la propuesta anterior; por eso la respuesta completa reúne a y c.",
+      "El Atlas no recoge únicamente las mismas especies de la propuesta anterior. Incorpora algunas especies que no figuraban en ella.<br><br>Fue creado en 2026 por la Sociedad Ibérica de Micología, de modo que son correctas a y c.",
+      "La afirmación es correcta, pero incompleta: el Atlas incorpora especies ausentes de la propuesta ibérica anterior.<br><br>También es correcto que fue creado por la Sociedad Ibérica de Micología; por eso la respuesta completa reúne a y c.",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación a la protección legislativa de hongos amenazados:",
+    "respuestas": [
+      "En la comunidad autónoma de Aragón existe una lista de especies de hongos amenazadas que están protegidas de forma legislativa.",
+      "En España en ninguna comunidad autónoma hay una lista de especies de hongos amenazadas que estén protegidas de forma legislativa.",
+      "En España solo hay una lista de especies de hongos amenazadas que estén protegidas de forma legislativa en Andalucía y Cataluña.",
+      "Ninguna de las respuestas anteriores es correcta."
+    ],
+    "correcta": 2,
+    "explicacion": [
+      "La mayoría de comunidades autónomas no tienen una protección legislativa específica para hongos amenazados.<br><br>Las excepciones indicadas son Andalucía, mediante el Decreto 23/2012, y Cataluña, mediante la Resolució AAM/732/2015.<br><br>Por tanto, no existe esa lista legislativa en Aragón y tampoco es correcto afirmar que ninguna comunidad protege hongos."
+    ],
+    "feedbackIncorrecto": [
+      "Aragón dispone de un borrador de Lista Roja, pero es una propuesta informativa sin valor legislativo; no equivale a una lista autonómica de hongos legalmente protegidos.<br><br>Las excepciones con protección legislativa indicadas son Andalucía y Cataluña.",
+      "No es cierto que ninguna comunidad autónoma proteja legalmente hongos amenazados.<br><br>Se señalan dos excepciones: Andalucía, mediante el Decreto 23/2012, y Cataluña, mediante la Resolució AAM/732/2015.",
+      null,
+      "Sí existe una respuesta correcta: las comunidades señaladas con protección legislativa específica son Andalucía y Cataluña.<br><br>Aragón tiene un borrador de Lista Roja informativo, pero no una lista con valor legislativo."
+    ]
+  },
+  {
+    "pregunta": "En relación a las especies exóticas:",
+    "respuestas": [
+      "En los últimos años se ha producido un incremento de especies exóticas en España.",
+      "En el Catálogo Español de Espacies Exóticas Invasoras solo aparece un hongo, concretamente el hongo quitrido de los anfibios (Batrachochytrichium dendrobatidis).",
+      "En la Lista Negra Preliminar de Especies Exóticas Invasoras para España solo aparecen 8 hongos: Aphanomyces astaci, Cryphonectria parasítica, Descolea tenuipes, Discula destructiva, Ophiostoma ulmi, Ophiostoma novo-ulmi, Phytophthora cinnamomi y Pisolithus albus.",
+      "Todas las respuestas anteriores son correctas."
+    ],
+    "correcta": 3,
+    "explicacion": [
+      "En los últimos años ha aumentado el número de especies de hongos exóticos registradas en España.<br><br>En el Catálogo Español de Especies Exóticas Invasoras aparece un hongo: Batrachochytrium dendrobatidis, el hongo quítrido de los anfibios.<br><br>La Lista Negra Preliminar de Especies Exóticas Invasoras para España recoge ocho hongos: Aphanomyces astaci, Cryphonectria parasitica, Descolea tenuipes, Discula destructiva, Ophiostoma ulmi, Ophiostoma novo-ulmi, Phytophthora cinnamomi y Pisolithus albus.<br><br>Por tanto, las tres afirmaciones son correctas."
+    ],
+    "feedbackIncorrecto": [
+      "El aumento de especies de hongos exóticos registradas en España es correcto, pero no es la única afirmación válida.<br><br>También son correctos el dato del Catálogo Español y la relación de ocho hongos de la Lista Negra Preliminar; por eso la respuesta completa reúne las tres.",
+      "El dato del catálogo es correcto: aparece Batrachochytrium dendrobatidis, el hongo quítrido de los anfibios, pero no es la única afirmación válida.<br><br>También se ha producido un aumento de hongos exóticos y la Lista Negra Preliminar recoge ocho especies; por eso la respuesta completa es «Todas».",
+      "La relación de ocho hongos es correcta, pero incompleta.<br><br>También son correctos el aumento reciente de especies exóticas registradas y la presencia de Batrachochytrium dendrobatidis en el Catálogo Español; por eso la respuesta completa reúne las tres afirmaciones.",
+      null
+    ]
+  },
+  {
+    "pregunta": "En relación a las especies exóticas:",
+    "respuestas": [
+      "Las especies exóticas naturalizadas son especies exóticas que se adaptan al nuevo medio y logran sobrevivir y establecer poblaciones estables en el tiempo sin la intervención humano, sin causar daños graves (ecológicos o económicos) ni desplazar a las especies autóctonas",
+      "Buenos ejemplos de especies exóticas naturalizadas son Chlorophyllum molybdites, Clathrus archeri, Collybiopsis luxurians, Favolaschia claudopus, Lysurus cruciatus y Phallus rubicundus.",
+      "Las especies exóticas naturalizadas son especies exóticas que se establecen en el medio a largo plazo, proliferando sin control convirtiéndose en una amenaza para las especies autóctonas, la salud de las plantas o incluso la salud pública.",
+      "Ninguna de las respuestas anteriores es correcta."
+    ],
+    "correcta": 0,
+    "explicacion": [
+      "Una especie exótica naturalizada se adapta al nuevo medio y mantiene poblaciones estables sin intervención humana, pero sin causar daños graves ni desplazar a las especies autóctonas.<br><br>Muchas especies naturalizadas están ligadas a plantas exóticas; entre los ejemplos se citan Geopora sumneriana y Suillus grevillei.<br><br>Una especie invasora da un paso más: prolifera sin control y se convierte en amenaza para especies autóctonas, plantas o salud pública."
+    ],
+    "feedbackIncorrecto": [
+      null,
+      "Las especies enumeradas en esa opción —Chlorophyllum molybdites, Clathrus archeri, Favolaschia claudopus, Lysurus cruciatus, Collybiopsis luxurians y Phallus rubicundus— se presentan como exóticas invasoras, no como naturalizadas.<br><br>Una naturalizada mantiene poblaciones estables sin intervención humana pero sin causar daños graves ni desplazar a las especies autóctonas.",
+      "Esa definición corresponde a una especie exótica invasora, no a una naturalizada: proliferar sin control y convertirse en amenaza es precisamente el rasgo que separa ambas categorías.<br><br>La naturalizada puede mantenerse a largo plazo sin intervención humana, pero sin provocar daños graves ni desplazar a las especies autóctonas.",
+      "Sí hay una respuesta correcta: una especie exótica naturalizada se establece de forma estable sin intervención humana y sin causar daños graves ni desplazar a las autóctonas.<br><br>Las especies que proliferan sin control y generan amenazas se clasifican como invasoras."
+    ]
+  },
+  {
+    "pregunta": "En relación a las especies exóticas:",
+    "respuestas": [
+      "La mayoría de especies micorrícicas de hongos que aparecen en repoblaciones de árboles exóticos se consideran especies exóticas invasoras.",
+      "El parasol de láminas verdes (Chlorophyllum molybdites) es una especie de hongo exótico invasor que ha colonizado en la región mediterránea numerosas zonas urbanas de parques y jardines, algunas zonas de cultivo y algunas dunas litorales de Andalucía, Cataluña y Extremadura.",
+      "Buenos ejemplos de especies exóticas invasoras son Gomphidius maculatus, Suillus grevillei y Suillus viscidus que aparecen en las repoblaciones de abeto de Douglas (Psudotsuga menziesii",
+      "Ninguna de las respuestas anteriores es correcta."
+    ],
+    "correcta": 1,
+    "explicacion": [
+      "Chlorophyllum molybdites se presenta como una especie exótica invasora que ha colonizado ambientes mediterráneos, especialmente zonas urbanas de parques y jardines, además de otros ambientes.<br><br>No toda especie micorrícica asociada a una repoblación de árboles exóticos es invasora: muchas se consideran naturalizadas si se mantienen sin causar daños graves.<br><br>Gomphidius maculatus, Suillus grevillei y Suillus viscidus figuran entre las especies exóticas naturalizadas, no entre las invasoras."
+    ],
+    "feedbackIncorrecto": [
+      "La mayoría de los hongos micorrícicos ligados a árboles exóticos no se consideran automáticamente invasores. Muchos se clasifican como naturalizados cuando se establecen sin causar daños graves ni desplazar especies autóctonas.<br><br>Chlorophyllum molybdites, en cambio, se presenta como ejemplo de hongo exótico invasor.",
+      null,
+      "Gomphidius maculatus, Suillus grevillei y Suillus viscidus se presentan como especies exóticas naturalizadas, no invasoras.<br><br>La especie señalada como invasora en esta pregunta es Chlorophyllum molybdites, que ha colonizado numerosos ambientes mediterráneos, especialmente parques y jardines urbanos.",
+      "Sí existe una respuesta correcta: Chlorophyllum molybdites se considera una especie exótica invasora.<br><br>La clave es distinguirla de numerosos hongos micorrícicos asociados a árboles exóticos, que pueden estar naturalizados sin comportarse como invasores."
+    ]
+  }
+];
+let preguntas=[...preguntasOriginales],modoRevision=false,indice=0,aciertos=0,fallos=0,respondida=false,falladas=[];
+const $=id=>document.getElementById(id), questionEl=$('question'), answersEl=$('answers'), feedbackEl=$('feedback'), feedbackTitleEl=$('feedback-title'), feedbackTextEl=$('feedback-text'), nextBtn=$('next-btn'), restartBtn=$('restart-btn'), restartFinalBtn=$('restart-final-btn'), reviewBtn=$('review-btn'), counterEl=$('counter'), hitsEl=$('hits'), missesEl=$('misses'), progressBar=$('progress-bar'), quizCard=$('quiz-card'), resultCard=$('result-card'), finalScore=$('final-score'), finalMessage=$('final-message');
+function cargarPregunta(){respondida=false;const actual=preguntas[indice];counterEl.textContent=`${modoRevision?'Revisión':'Pregunta'} ${indice+1} de ${preguntas.length}`;questionEl.textContent=actual.pregunta;answersEl.innerHTML='';feedbackEl.classList.remove('show');nextBtn.classList.add('hidden');restartBtn.classList.remove('hidden');progressBar.style.width=`${(indice/preguntas.length)*100}%`;actual.respuestas.forEach((respuesta,i)=>{const btn=document.createElement('button');btn.className='answer';btn.innerHTML=`<span class="letter">${String.fromCharCode(97+i)})</span> ${respuesta}`;btn.addEventListener('click',()=>comprobarRespuesta(i,btn));answersEl.appendChild(btn);});}
+function comprobarRespuesta(elegida,boton){if(respondida)return;respondida=true;const actual=preguntas[indice],botones=[...document.querySelectorAll('.answer')];botones.forEach((btn,i)=>{btn.disabled=true;if(i===actual.correcta)btn.classList.add('correct');});const ok=elegida===actual.correcta;if(ok){aciertos++;feedbackTitleEl.textContent='¡Correcto!';feedbackTitleEl.className='ok';}else{fallos++;boton.classList.add('wrong');feedbackTitleEl.textContent='No es correcta';feedbackTitleEl.className='bad';if(!modoRevision)falladas.push(actual);}hitsEl.textContent=aciertos;missesEl.textContent=fallos;feedbackTextEl.innerHTML=actual.explicacion.map(linea=>`<p>${linea}</p>`).join('');feedbackEl.classList.add('show');nextBtn.classList.remove('hidden');nextBtn.textContent=indice===preguntas.length-1?'Ver resultado':'Siguiente pregunta';}
+function siguiente(){if(indice<preguntas.length-1){indice++;cargarPregunta();}else mostrarResultado();}
+function mostrarResultado(){progressBar.style.width='100%';quizCard.classList.add('hidden');resultCard.classList.remove('hidden');const pct=Math.round((aciertos/preguntas.length)*100);finalScore.textContent=`Has obtenido ${aciertos} aciertos y ${fallos} fallos (${pct}%).`;if(modoRevision){finalMessage.textContent=fallos===0?'Muy bien: has corregido todos los fallos de esta revisión.':'Puedes volver a revisar los fallos que queden.';reviewBtn.classList.toggle('hidden',fallos===0);}else{finalMessage.textContent=pct>=80?'Muy buen resultado.':pct>=50?'Buen avance. Revisa las preguntas falladas para afianzar conceptos.':'Toca repasar con calma. La revisión de fallos te ayudará a centrarte en los puntos débiles.';reviewBtn.classList.toggle('hidden',falladas.length===0);}}
+function reiniciarCompleto(){preguntas=[...preguntasOriginales];modoRevision=false;indice=0;aciertos=0;fallos=0;falladas=[];hitsEl.textContent='0';missesEl.textContent='0';quizCard.classList.remove('hidden');resultCard.classList.add('hidden');cargarPregunta();}
+function revisarFallos(){if(!falladas.length)return;preguntas=[...falladas];modoRevision=true;indice=0;aciertos=0;fallos=0;falladas=[];hitsEl.textContent='0';missesEl.textContent='0';quizCard.classList.remove('hidden');resultCard.classList.add('hidden');cargarPregunta();}
+nextBtn.addEventListener('click',siguiente);restartBtn.addEventListener('click',reiniciarCompleto);restartFinalBtn.addEventListener('click',reiniciarCompleto);reviewBtn.addEventListener('click',revisarFallos);cargarPregunta();
+</script>
+</body>
+</html>
