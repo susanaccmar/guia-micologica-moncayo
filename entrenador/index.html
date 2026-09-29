@@ -160,8 +160,14 @@ async function setCardPhoto(card){
  if(deck[index]!==card)return;
  const obs=chooseInatObservation(card);
  if(!obs){
-   img.removeAttribute('src');img.style.display='none';updateInatPhotoNav();
-   if(caption)caption.textContent='Baño de realidad · sin observación disponible en iNaturalist para esta especie';
+   currentInatObs=null;currentInatPhotoIndex=0;updateInatPhotoNav();
+   if(card.image){
+     img.src=card.image;img.style.display='block';
+     if(caption)caption.textContent=mode==='exam'?'Baño de realidad · Modo examen':'';
+   }else{
+     img.removeAttribute('src');img.style.display='none';
+     if(caption)caption.textContent='Imagen no disponible';
+   }
    return;
  }
  currentInatObs=obs;currentInatPhotoIndex=0;
