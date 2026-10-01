@@ -587,8 +587,15 @@ function keyRow(species){
 
 /* Géneros/grupos grandes: se dividen por similitud macroscópica. */
 {
- const g=['Agaricus bernardii','Agaricus xanthodermus','Agaricus arvensis','Agaricus campestris','Agaricus bresadolanus','Agaricus iodosmus','Agaricus cappellii'];
- setAutumnGroup(g,[keyRow(g)],'Comparar reacción de la carne o cutícula, olor, anillo y ecología.');
+ const g=['Agaricus arvensis','Agaricus bernardii','Agaricus campestris','Agaricus cappellii','Agaricus bresadolanus','Agaricus iodosmus','Agaricus xanthodermus'];
+ setAutumnGroup(g,[
+  ['Olor','Anisado','Desagradable al madurar','Fúngico','Fúngico suave','Anisado; fenólico en la base','Fenólico / yodoformo intenso','Fenólico intenso'],
+  ['Viraje de la carne','Amarillea','Rojizo-anaranjado intenso','Enrojece ligeramente','Prácticamente inmutable','Amarillea en la base','Amarillo-cromo intenso en la base','Amarillo-cromo intenso, sobre todo en la base'],
+  ['Cutícula','Clara, finamente escamosa','Blanquecina','Blanca con escamas pardo-ocráceas','Fibrillosa, escamosa-pilosa','Escamas pardo-grisáceas','Escamas pardo-grisáceas a negruzcas','Lisa, grisácea'],
+  ['Anillo','Doble, rueda dentada','Simple, robusto','Simple','Doble/compuesto, lanoso y fugaz','Simple, membranoso','Amplio y complejo','Complejo, falsa rueda dentada'],
+  ['Base / pie','Pie relativamente largo','Porte robusto','Pie aproximadamente del diámetro del sombrero','Pie largo, cilíndrico o atenuado','Bulboso, con rizomorfos','Atenuado o algo bulboso; puede presentar rizomorfos','Bulboso, con rizomorfos'],
+  ['Hábitat','Praderas','Ambientes salinos, pastizales costeros y zonas urbanas','Praderas y zonas herbosas','Bordes de bosque y ambientes herbosos/nitrófilos','Bajo planifolios, especialmente falsa acacia','Parques, jardines, caminos y terrenos removidos','Zonas urbanas, herbazales y bordes de caminos']
+ ],'En Agaricus priorizar olor, viraje y zona donde se produce, cutícula, tipo de anillo y base del pie; el hábitat ayuda cuando es característico.');
 }
 {
  const g=['Erysiphe convolvuli','Erysiphe euonymicola','Erysiphe platani','Erysiphe trifoliorum'];
