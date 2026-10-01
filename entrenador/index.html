@@ -594,23 +594,107 @@ function keyRow(species){
  const g=['Erysiphe convolvuli','Erysiphe euonymicola','Erysiphe platani','Erysiphe trifoliorum'];
  setAutumnGroup(g,[['Hospedador','Convolvulus arvensis (correhuela)','Euonymus japonicus (evónimo japonés)','Platanus (plátanos de sombra)','Trifolium (trébol)']],'El hospedador es el carácter discriminante principal.');
 }
-const lactGroups=[
- ['Lactarius deliciosus','Lactarius sanguifluus','Lactarius quieticolor'],
- ['Lactarius controversus','Lactarius pubescens','Lactarius torminosus','Lactifluus vellereus'],
- ['Lactarius hepaticus','Lactarius rufus','Lactarius quietus','Lactarius subdulcis','Lactarius rubrocinctus'],
- ['Lactarius blennius','Lactarius glyciosmus','Lactarius turpis','Lactarius vietus'],
- ['Lactarius lacunarum','Lactarius zonarius']
-];
-lactGroups.forEach(g=>setAutumnGroup(g,[keyRow(g)],'Comparativa agrupada por aspecto general; priorizar color, látex, sabor/olor y hospedador.'));
-const russulaGroups=[
- ['Russula emetica','Russula sanguinea','Russula sardonia','Russula exalbicans'],
- ['Russula aeruginea','Russula parazurea','Russula virescens'],
- ['Russula amethystina','Russula amoena','Russula cessans','Russula vinosobrunnea'],
- ['Russula chloroides','Russula vesca'],
- ['Russula subfoetens','Russula praetervisa']
-];
-russulaGroups.forEach(g=>setAutumnGroup(g,[keyRow(g)],'Comparativa agrupada por similitud de la cutícula; usar los caracteres discriminantes de cada especie.'));
-
+/* Lactarius/Lactifluus y Russula: tablas discriminantes, una fila por carácter. */
+{
+ const g=['Lactarius deliciosus','Lactarius sanguifluus','Lactarius quieticolor'];
+ setAutumnGroup(g,[
+  ['Sombrero','Naranja, zonado','Rojizo-anaranjado','Pálido, grisáceo; puede tener tonos azulados o violáceos'],
+  ['Látex','Naranja zanahoria; después verdea','Directamente rojo vinoso','Naranja'],
+  ['Láminas','Anaranjadas; verdean al dañarse','Rojizas o vinosas','Pálidas'],
+  ['Pie','Naranja; escrobículos variables','Normalmente sin escrobículos','Con o sin escrobículos'],
+  ['Hábitat / hospedador','Pinos; preferentemente acidófila','Pinos; basófila','Pinos; ambientes muy húmedos, turberas y cursos de agua']
+ ],'En los níscalos, priorizar color del látex, color de las láminas, escrobículos y ecología.');
+}
+{
+ const g=['Lactarius controversus','Lactarius pubescens','Lactarius torminosus','Lactifluus vellereus'];
+ setAutumnGroup(g,[
+  ['Sombrero','Blanco, a veces rosado; margen involuto','Blanco-crema a ocráceo; margen muy piloso','Rosado, zonado; margen muy lanoso','Blanco; grande, seco y aterciopelado'],
+  ['Láminas','Rosadas, decurrentes','Blanquecinas, a veces rosadas','Pálidas rosadas, apretadas','Blancas; relativamente separadas'],
+  ['Látex','Blanco, abundante e inmutable','Blanco, abundante e inmutable','Blanco o crema, inmutable','Blanco, abundante'],
+  ['Sabor','Acre','Picante','Muy acre/picante','Extremadamente acre y ardiente'],
+  ['Hábitat / hospedador','Salicáceas: álamos, chopos y sauces','Abedules; frecuente en parques y jardines','Abedules, a menudo en lugares húmedos','Frondosas, especialmente hayas']
+ ],'Separar por color y pilosidad del sombrero, densidad/color de láminas, sabor y árbol asociado.');
+}
+{
+ const g=['Lactarius hepaticus','Lactarius rufus','Lactarius quietus','Lactarius subdulcis','Lactarius rubrocinctus'];
+ setAutumnGroup(g,[
+  ['Sombrero','Pardo hepático','Pardo rojizo; mamelón muy marcado','Pardo rojizo; zonación oscura discreta','Pardo a canela; pequeño, centro deprimido con pequeño mamelón','Pardo rojizo a ocre-pardo; seco y mate'],
+  ['Látex','Blanco; amarillea','Blanco; muy acre','Blanco-cremoso; inmutable','Blanco, abundante e inmutable','Blanco'],
+  ['Sabor','Acre','Muy acre/picante','Suave; después algo amargo','Suave/casi dulce; después ligeramente amargo','—'],
+  ['Pie','—','—','—','—','Banda o zona rojiza característica'],
+  ['Hábitat / hospedador','Pinos; suelos ácidos','Coníferas, sobre todo pinos','Robles','Fagáceas húmedas, especialmente hayas','Planifolios, especialmente hayas y robles']
+ ],'En los Lactarius pardos, combinar látex, sabor, banda del pie y hospedador.');
+}
+{
+ const g=['Lactarius blennius','Lactarius glyciosmus','Lactarius turpis','Lactarius vietus'];
+ setAutumnGroup(g,[
+  ['Sombrero','Gris verdoso/oliváceo, viscoso y con máculas oscuras','Gris-lilacino a beige apagado; pequeño','Verde-negruzco; grande, margen involuto','Gris a violáceo; viscoso en húmedo'],
+  ['Látex','Blanco abundante; seca gris','Blanco acuoso, inmutable','Blanco; puede oscurecer las láminas','Blanco; seca gris ahumado/verdoso'],
+  ['Olor','Sin olor destacado','Coco','Sin olor destacado','Sin olor destacado'],
+  ['Sabor','Amargo y acre','Suave al inicio; después algo acre/amargo','Acre','Acre/picante'],
+  ['Pie','Pálido grisáceo','Pálido, subconcoloro','Verde-negruzco, con escrobículos','Liso y frágil'],
+  ['Hábitat / hospedador','Hayas','Abedules','Abedules; ambientes húmedos','Abedules; lugares húmedos y sombríos']
+ ],'Olor a coco identifica L. glyciosmus; en los demás son especialmente útiles cutícula, viraje del látex, pie y hospedador.');
+}
+{
+ const g=['Lactarius lacunarum','Lactarius zonarius'];
+ setAutumnGroup(g,[
+  ['Sombrero','Pequeño, marrón-anaranjado a rojo-anaranjado','Ocre-amarillento; claramente zonado, sobre todo hacia el margen'],
+  ['Látex','Blanco; amarillea lentamente','Blanco, abundante'],
+  ['Sabor','—','Inicialmente dulce; rápidamente picante'],
+  ['Pie','Subconcoloro, algo más pálido','Blanquecino con escrobículos/fosetas amarillo-anaranjados'],
+  ['Hábitat / hospedador','Planifolios; zonas aluviales, turberas o terrenos temporalmente inundados','Quercíneas; termófila']
+ ],'El amarilleamiento lento del látex caracteriza L. lacunarum; la zonación y los escrobículos del pie, L. zonarius.');
+}
+{
+ const g=['Russula emetica','Russula sanguinea','Russula sardonia','Russula exalbicans'];
+ setAutumnGroup(g,[
+  ['Sombrero','Rojo vivo; cutícula separable','Rojo intenso','Rojo-purpúreo a violeta; centro más oscuro','Rojizo, decolorándose a ocre u oliva'],
+  ['Láminas','Blancas','Crema a amarillentas','Amarillo limón → amarillo dorado','Crema a amarillo-cremoso'],
+  ['Pie','Blanco','Blanco fuertemente teñido de rojo/rosa','Frecuentemente rosado o violáceo','Blanco'],
+  ['Sabor','Muy acre','Muy acre/picante','Muy acre','—'],
+  ['Hábitat / hospedador','Turberas/bosques húmedos; pino albar y abedules','Pino albar','Pinos','Abedules, característica en ambientes urbanos']
+ ],'En las Russula rojas, el color de láminas y pie, el sabor y el árbol asociado son más útiles que el rojo del sombrero.');
+}
+{
+ const g=['Russula aeruginea','Russula parazurea','Russula virescens'];
+ setAutumnGroup(g,[
+  ['Cutícula','Verde grisácea a verde olivácea; lisa','Azul-grisácea a violácea; mate y pruinosa de joven','Verde cardenillo; seca y claramente cuarteada/areolada'],
+  ['Láminas','Blancas → amarillentas','Blanquecinas → crema-ocres','Crema; friables'],
+  ['Hábitat / hospedador','Especialmente abedules','Planifolios y coníferas; también parques','Betuláceas y fagáceas; acidófila']
+ ],'R. virescens destaca por la cutícula areolada; R. parazurea por la pruina azul-grisácea; R. aeruginea por el verde liso y su frecuente asociación con abedul.');
+}
+{
+ const g=['Russula amethystina','Russula amoena','Russula cessans','Russula vinosobrunnea'];
+ setAutumnGroup(g,[
+  ['Sombrero','Violáceo/púrpura/vinoso, variable','Vinoso-purpúreo; seco y aterciopelado','Rosado-purpúreo, tendiendo a palidecer hacia el margen','Vinoso a pardo vinoso; robusto, centro generalmente más oscuro'],
+  ['Láminas','Crema → amarillas','Claras','Amarillentas','Crema → amarillentas'],
+  ['Pie','Blanco → amarillento/parduzco','Blanco, a menudo teñido de rosa/rojo/violeta','Blanco','Blanco; puede tomar tonos rosados o parduzcos'],
+  ['Olor / sabor','Olor a yodo/yodoformo en la base','Sabor suave','Sabor dulce/suave','—'],
+  ['Hábitat / hospedador','Coníferas de montaña, especialmente abetos','Planifolios y coníferas','Pinos','—']
+ ],'En las Russula vinosas, combinar textura de cutícula, color de láminas/pie, olor o sabor y hospedador.');
+}
+{
+ const g=['Russula chloroides','Russula vesca'];
+ setAutumnGroup(g,[
+  ['Aspecto','Grande, blanca y embudada','Pardo-rosácea a pardo-vinosa; tamaño medio'],
+  ['Láminas','Blancas/crema, decurrentes; posible tono azulado junto al pie','Claras, separadas y friables'],
+  ['Pie','Corto, blanco; banda azul-verdosa apical característica cuando aparece','Blanco; manchas pardo-herrumbre hacia la base'],
+  ['Margen','Involuto de joven','Cutícula retraída: puede dejar visibles los extremos de las láminas (“enseña los dientes”)'],
+  ['Sabor','Láminas amargas y picantes; carne del pie más suave','Suave, agradable, algo a nuez']
+ ],'Son visualmente muy distintas: R. chloroides es una gran Russula blanca embudada; R. vesca se reconoce por el margen retraído que “enseña los dientes”.');
+}
+{
+ const g=['Russula subfoetens','Russula praetervisa'];
+ setAutumnGroup(g,[
+  ['Sombrero','Ocre a pardo rojizo; robusto, algo viscoso; margen acanalado','Pardo grisáceo a ocráceo; más pequeño; margen acanalado-tuberculado'],
+  ['Olor','Desagradable, menos intenso que R. foetens','Desagradable, aceitoso o de pescado'],
+  ['Sabor','Acre','Suave a ligeramente desagradable; no intensamente acre'],
+  ['Pie','Se mancha de ocre-pardo con la edad','Base con manchas ocre a pardo-rojizas'],
+  ['KOH','Amarillo dorado en la carne del pie','No es el carácter diagnóstico principal'],
+  ['Hábitat / hospedador','Frondosas, especialmente hayas y robles','Especialmente robles; también parques y suelos ligeros']
+ ],'La reacción amarillo-dorada al KOH y el sabor acre apoyan R. subfoetens; R. praetervisa es menor, de sabor no intensamente acre y suele manchar la base del pie.');
+}
 /* Sincroniza Posibles confusiones con la tabla realmente disponible en OTOÑO. */
 allCards.forEach(c=>{
  const d=comparisons[c.name];
